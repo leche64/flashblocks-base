@@ -110,10 +110,12 @@ export default function Home() {
                 const timestampMatch = data.match(/"timestamp":\s*"(0x[0-9a-f]+)"/i);
                 
                 if (blockNumberMatch && timestampMatch) {
+                    const blockNumber = parseInt(blockNumberMatch[1], 16);
+                    const timestamp = parseInt(timestampMatch[1], 16);
                     const newBlock = {
-                        blockNumber: parseInt(blockNumberMatch[1], 16),
-                        timestamp: parseInt(timestampMatch[1], 16),
-                        id: Date.now()
+                        blockNumber,
+                        timestamp,
+                        id: `base-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setBaseBlockInfo(newBlock);
                     setBaseBlockHistory(prev => {
@@ -127,10 +129,12 @@ export default function Home() {
             
             // Successfully parsed JSON, now extract block info
             if (jsonData.base) {
+                const blockNumber = parseInt(jsonData.base.block_number, 16);
+                const timestamp = parseInt(jsonData.base.timestamp, 16);
                 const newBlock = {
-                    blockNumber: parseInt(jsonData.base.block_number, 16),
-                    timestamp: parseInt(jsonData.base.timestamp, 16),
-                    id: Date.now()
+                    blockNumber,
+                    timestamp,
+                    id: `base-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                 };
                 setBaseBlockInfo(newBlock);
                 setBaseBlockHistory(prev => {
@@ -141,10 +145,12 @@ export default function Home() {
             } else if (jsonData.params && jsonData.params.result) {
                 const result = jsonData.params.result;
                 if (result.number || result.block_number) {
+                    const blockNumber = parseInt(result.number || result.block_number, 16);
+                    const timestamp = parseInt(result.timestamp, 16);
                     const newBlock = {
-                        blockNumber: parseInt(result.number || result.block_number, 16),
-                        timestamp: parseInt(result.timestamp, 16),
-                        id: Date.now()
+                        blockNumber,
+                        timestamp,
+                        id: `base-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setBaseBlockInfo(newBlock);
                     setBaseBlockHistory(prev => {
@@ -155,10 +161,12 @@ export default function Home() {
                 }
             } else if (jsonData.result) {
                 if (jsonData.result.number || jsonData.result.block_number) {
+                    const blockNumber = parseInt(jsonData.result.number || jsonData.result.block_number, 16);
+                    const timestamp = parseInt(jsonData.result.timestamp, 16);
                     const newBlock = {
-                        blockNumber: parseInt(jsonData.result.number || jsonData.result.block_number, 16),
-                        timestamp: parseInt(jsonData.result.timestamp, 16),
-                        id: Date.now()
+                        blockNumber,
+                        timestamp,
+                        id: `base-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setBaseBlockInfo(newBlock);
                     setBaseBlockHistory(prev => {
@@ -246,10 +254,12 @@ export default function Home() {
                 const timestampMatch = data.match(/"timestamp":\s*"(0x[0-9a-f]+)"/i);
                 
                 if (blockNumberMatch && timestampMatch) {
+                    const blockNumber = parseInt(blockNumberMatch[1], 16);
+                    const timestamp = parseInt(timestampMatch[1], 16);
                     const newBlock = {
-                        blockNumber: parseInt(blockNumberMatch[1], 16),
-                        timestamp: parseInt(timestampMatch[1], 16),
-                        id: Date.now()
+                        blockNumber,
+                        timestamp,
+                        id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setFlashbotBlockInfo(newBlock);
                     setFlashbotBlockHistory(prev => {
@@ -263,10 +273,12 @@ export default function Home() {
             
             // Successfully parsed JSON, now extract block info
             if (jsonData.base) {
+                const blockNumber = parseInt(jsonData.base.block_number, 16);
+                const timestamp = parseInt(jsonData.base.timestamp, 16);
                 const newBlock = {
-                    blockNumber: parseInt(jsonData.base.block_number, 16),
-                    timestamp: parseInt(jsonData.base.timestamp, 16),
-                    id: Date.now()
+                    blockNumber,
+                    timestamp,
+                    id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                 };
                 setFlashbotBlockInfo(newBlock);
                 setFlashbotBlockHistory(prev => {
@@ -277,10 +289,12 @@ export default function Home() {
             } else if (jsonData.params && jsonData.params.result) {
                 const result = jsonData.params.result;
                 if (result.number || result.block_number) {
+                    const blockNumber = parseInt(result.number || result.block_number, 16);
+                    const timestamp = parseInt(result.timestamp, 16);
                     const newBlock = {
-                        blockNumber: parseInt(result.number || result.block_number, 16),
-                        timestamp: parseInt(result.timestamp, 16),
-                        id: Date.now()
+                        blockNumber,
+                        timestamp,
+                        id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setFlashbotBlockInfo(newBlock);
                     setFlashbotBlockHistory(prev => {
@@ -291,10 +305,12 @@ export default function Home() {
                 }
             } else if (jsonData.result) {
                 if (jsonData.result.number || jsonData.result.block_number) {
+                    const blockNumber = parseInt(jsonData.result.number || jsonData.result.block_number, 16);
+                    const timestamp = parseInt(jsonData.result.timestamp, 16);
                     const newBlock = {
-                        blockNumber: parseInt(jsonData.result.number || jsonData.result.block_number, 16),
-                        timestamp: parseInt(jsonData.result.timestamp, 16),
-                        id: Date.now()
+                        blockNumber,
+                        timestamp,
+                        id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setFlashbotBlockInfo(newBlock);
                     setFlashbotBlockHistory(prev => {
@@ -311,7 +327,7 @@ export default function Home() {
                 const syntheticBlock = {
                     blockNumber: flashbotBlockInfo.blockNumber + 1,
                     timestamp: Math.floor(Date.now() / 1000),
-                    id: Date.now(),
+                    id: `flashbot-synthetic-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
                     synthetic: true
                 };
                 setFlashbotBlockInfo(syntheticBlock);
@@ -396,13 +412,13 @@ export default function Home() {
                         <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
                             <div className="flex gap-2 flex-nowrap">
                                 <AnimatePresence>
-                                    {baseBlockHistory.map((block, index) => (
+                                    {baseBlockHistory.map((block) => (
                                         <motion.div 
                                             className="bg-blue-900/50 text-blue-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
                                             initial={{ opacity: 0, scale: 0.9, x: -10 }}
                                             animate={{ opacity: 1, scale: 1, x: 0 }}
                                             exit={{ opacity: 0, scale: 0.9, x: 10 }}
-                                            key={`base-block-${block.id}`}
+                                            key={block.id}
                                             layout
                                             transition={{ duration: 0.3 }}
                                         >
@@ -444,13 +460,13 @@ export default function Home() {
                         <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
                             <div className="flex gap-2 flex-nowrap">
                                 <AnimatePresence>
-                                    {flashbotBlockHistory.map((block, index) => (
+                                    {flashbotBlockHistory.map((block) => (
                                         <motion.div 
                                             className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
                                             initial={{ opacity: 0, scale: 0.9, x: -10 }}
                                             animate={{ opacity: 1, scale: 1, x: 0 }}
                                             exit={{ opacity: 0, scale: 0.9, x: 10 }}
-                                            key={`flashbot-block-${block.id}`}
+                                            key={block.id}
                                             layout
                                             transition={{ duration: 0.3 }}
                                         >
