@@ -686,23 +686,17 @@ export default function Home() {
                     </div>
                 </motion.div>
                 
-                {/* 
+                
                 <motion.div
                     className="mt-10 pt-6 border-t border-gray-800 text-xs text-gray-500"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 2, duration: 0.7 }}
                 >
-                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-                        <a href="https://www.flashbots.net/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Flashbots</a>
-                        <a href="https://docs.flashbots.net/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Documentation</a>
-                        <a href="https://github.com/flashbots" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">GitHub</a>
-                        <a href="https://discord.gg/flashbots" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Discord</a>
-                    </div>
                     <p className="mt-4">
-                        © {new Date().getFullYear()} Base x Flashbots
+                        Made by <a href="https://x.com/0xblazeit" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">Blaze</a>
                     </p>
-                </motion.div> */}
+                </motion.div>
             </motion.div>
         </div>
     )
