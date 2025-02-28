@@ -15,6 +15,7 @@ export default function Home() {
   const [blockTimings, setBlockTimings] = useState({});
   const [flashMessagesCount, setFlashMessagesCount] = useState(0);
   const [baseMessagesCount, setBaseMessagesCount] = useState(0);
+  const [raceWinner, setRaceWinner] = useState(null);
   
   // Flash Blocks WebSocket
   const { lastMessage: flashLastMessage } = useWebSocket("wss://sepolia.flashblocks.base.org/ws", {
@@ -225,12 +226,139 @@ export default function Home() {
     }
   });
 
+  // Check for race winner based on blocks instead of messages
+  useEffect(() => {
+    if (raceWinner) return; // Race already has a winner
+    
+    if (flashBlocks.length >= 420 && baseBlocks.length < 420) {
+      setRaceWinner('flash');
+    } else if (baseBlocks.length >= 420 && flashBlocks.length < 420) {
+      setRaceWinner('base');
+    } else if (flashBlocks.length >= 420 && baseBlocks.length >= 420) {
+      // Both reached the goal at the same time (or in the same render cycle)
+      setRaceWinner('tie');
+    }
+  }, [flashBlocks.length, baseBlocks.length, raceWinner]);
+
   return (
-    <div className="grid grid-rows-[auto_1fr] min-h-screen p-8 pb-20 gap-8 sm:p-20 bg-slate-900">
+    <div className="grid grid-rows-[auto_auto_1fr] min-h-screen p-8 pb-20 gap-8 sm:p-20 bg-slate-900">
       <header className="flex items-center gap-4">
         <Monitor size={32} className="text-white" weight="bold" />
         <h1 className="text-3xl font-bold text-white">Base Sepolia Block Comparison</h1>
       </header>
+
+      {/* Race Track UI */}
+      <div className="bg-slate-800 rounded-xl p-6 shadow-lg border-4 border-slate-700">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <ArrowsHorizontal size={24} weight="bold" className="text-white" />
+          Block Race - First to 420 Blocks Wins!
+        </h2>
+        
+        <div className="relative h-24 bg-slate-700 rounded-lg overflow-hidden mb-4">
+          {/* Finish Line */}
+          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white z-10 flex items-center justify-center">
+            <div className="absolute -left-7 text-white font-bold">420</div>
+          </div>
+          
+          {/* Progress Markers */}
+          {[100, 200, 300].map(marker => (
+            <div 
+              key={marker} 
+              className="absolute top-0 bottom-0 w-px bg-slate-600 z-0 flex items-center justify-center"
+              style={{ left: `${(marker / 420) * 100}%` }}
+            >
+              <div className="absolute -left-4 text-slate-400 text-sm">{marker}</div>
+            </div>
+          ))}
+          
+          {/* Flash Racer */}
+          <motion.div 
+            className="absolute top-6 h-6 w-6 rounded-full bg-green-400 shadow-lg z-20 flex items-center justify-center"
+            initial={{ left: 0 }}
+            animate={{ 
+              left: `${Math.min((flashBlocks.length / 420) * 100, 100)}%`,
+              scale: raceWinner === 'flash' ? [1, 1.5, 1] : 1
+            }}
+            transition={{ 
+              left: { 
+                type: "spring", 
+                stiffness: 100, 
+                damping: 15,
+                mass: 0.8
+              },
+              scale: { 
+                repeat: raceWinner === 'flash' ? Infinity : 0, 
+                duration: 1 
+              }
+            }}
+          >
+            <span className="text-xs font-bold">F</span>
+            {raceWinner === 'flash' && (
+              <motion.div 
+                className="absolute -top-8 whitespace-nowrap text-green-300 font-bold"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                WINNER!
+              </motion.div>
+            )}
+          </motion.div>
+          
+          {/* Base Racer */}
+          <motion.div 
+            className="absolute top-12 h-6 w-6 rounded-full bg-blue-400 shadow-lg z-20 flex items-center justify-center"
+            initial={{ left: 0 }}
+            animate={{ 
+              left: `${Math.min((baseBlocks.length / 420) * 100, 100)}%`,
+              scale: raceWinner === 'base' ? [1, 1.5, 1] : 1
+            }}
+            transition={{ 
+              left: { 
+                type: "spring", 
+                stiffness: 100, 
+                damping: 15,
+                mass: 0.8
+              },
+              scale: { 
+                repeat: raceWinner === 'base' ? Infinity : 0, 
+                duration: 1 
+              }
+            }}
+          >
+            <span className="text-xs font-bold">B</span>
+            {raceWinner === 'base' && (
+              <motion.div 
+                className="absolute -top-8 whitespace-nowrap text-blue-300 font-bold"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                WINNER!
+              </motion.div>
+            )}
+          </motion.div>
+          
+          {raceWinner === 'tie' && (
+            <motion.div 
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white font-bold"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              TIE!
+            </motion.div>
+          )}
+        </div>
+        
+        <div className="flex justify-between text-sm text-white">
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 bg-green-400 rounded-full"></div>
+            <span>Flash: {flashBlocks.length} blocks</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
+            <span>Base: {baseBlocks.length} blocks</span>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Flash Blocks Panel */}
@@ -241,7 +369,7 @@ export default function Home() {
               <div className={`h-2 w-2 ${isFlashConnected ? 'bg-green-600' : 'bg-yellow-600'} rounded-full animate-pulse`} />
             </div>
             <div className="mt-2 text-xs text-slate-800">
-              <div>Total messages received: {flashMessagesCount}</div>
+              <div>Total blocks received: {flashMessagesCount}</div>
             </div>
           </div>
 
@@ -283,7 +411,7 @@ export default function Home() {
               <div className={`h-2 w-2 ${isBaseConnected ? 'bg-green-600' : 'bg-yellow-600'} rounded-full animate-pulse`} />
             </div>
             <div className="mt-2 text-xs text-slate-800">
-              <div>Total messages received: {baseMessagesCount}</div>
+              <div>Total blocks received: {baseMessagesCount}</div>
               {!isBaseConnected && (
                 <>
                   <div>Connection attempts: {baseConnectionAttempts}</div>
