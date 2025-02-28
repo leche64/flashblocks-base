@@ -168,11 +168,6 @@ export default function Home() {
                     blockUpdated = true;
                 }
             }
-            
-            // Only increment the counter if we successfully updated a block
-            if (blockUpdated) {
-                setBaseMessages(prev => prev + 1);
-            }
         } catch (error) {
             console.error("Error processing base message:", error);
             console.log("Raw base message preview:", 
@@ -357,7 +352,7 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 0.7 }}
                 >
-                    10x change makes Base the fastest EVM chain to date, decreasing block times from 2 seconds down to 200 milliseconds.
+                    The fastest EVM chain to date.
                 </motion.p>
                 
                 <motion.p 
