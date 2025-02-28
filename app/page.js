@@ -393,7 +393,7 @@ export default function Home() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.8, duration: 0.7 }}
                     >
-                        live on testnet
+                        live on Sepolia testnet
                         <br />
                         coming to mainnet in Q2
                     </motion.p>
@@ -405,7 +405,7 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.1, duration: 0.7 }}
                 >
-                    <h2 className="text-lg sm:text-xl font-bold mb-6">Real-time Performance Comparison</h2>
+                    <h2 className="text-sm sm:text-md font-bold mb-6">Real-time Performance Comparison</h2>
                     
                     <div className="flex flex-col gap-y-8">
                         {/* Base Sepolia Counter */}
