@@ -602,8 +602,8 @@ export default function Home() {
                     <div className="border border-gray-800 rounded-lg overflow-hidden mb-3">
                         <details className="group">
                             <summary className="flex justify-between items-center p-4 bg-gray-900/70 cursor-pointer">
-                                <span className="font-semibold text-green-400 text-sm sm:text-base">What are Flashblocks?</span>
-                                <span className="transition-transform duration-300 group-open:rotate-180">
+                                <span className="font-semibold text-green-400 text-sm sm:text-base text-left">What are Flashblocks?</span>
+                                <span className="transition-transform duration-300 group-open:rotate-180 flex-shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256">
                                         <path fill="currentColor" d="m213.7 101.7l-80 80a8.2 8.2 0 0 1-11.4 0l-80-80a8.1 8.1 0 0 1 11.4-11.4l74.3 74.4l74.3-74.4a8.1 8.1 0 0 1 11.4 11.4Z" />
                                     </svg>
@@ -623,8 +623,8 @@ export default function Home() {
                     <div className="border border-gray-800 rounded-lg overflow-hidden">
                         <details className="group">
                             <summary className="flex justify-between items-center p-4 bg-gray-900/70 cursor-pointer">
-                                <span className="font-semibold text-green-400 text-sm sm:text-base">How to build with Flashblocks?</span>
-                                <span className="transition-transform duration-300 group-open:rotate-180">
+                                <span className="font-semibold text-green-400 text-sm sm:text-base text-left">How to build with Flashblocks?</span>
+                                <span className="transition-transform duration-300 group-open:rotate-180 flex-shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256">
                                         <path fill="currentColor" d="m213.7 101.7l-80 80a8.2 8.2 0 0 1-11.4 0l-80-80a8.1 8.1 0 0 1 11.4-11.4l74.3 74.4l74.3-74.4a8.1 8.1 0 0 1 11.4 11.4Z" />
                                     </svg>
@@ -660,8 +660,8 @@ export default function Home() {
                     <div className="border border-gray-800 rounded-lg overflow-hidden mt-3">
                         <details className="group">
                             <summary className="flex justify-between items-center p-4 bg-gray-900/70 cursor-pointer">
-                                <span className="font-semibold text-green-400 text-sm sm:text-base">About Flashbots</span>
-                                <span className="transition-transform duration-300 group-open:rotate-180">
+                                <span className="font-semibold text-green-400 text-sm sm:text-base text-left">About Flashbots</span>
+                                <span className="transition-transform duration-300 group-open:rotate-180 flex-shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256">
                                         <path fill="currentColor" d="m213.7 101.7l-80 80a8.2 8.2 0 0 1-11.4 0l-80-80a8.1 8.1 0 0 1 11.4-11.4l74.3 74.4l74.3-74.4a8.1 8.1 0 0 1 11.4 11.4Z" />
                                     </svg>
