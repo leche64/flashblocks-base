@@ -38,7 +38,26 @@ export default function Home() {
     
     // Base Sepolia WebSocket
     const baseSocket = useWebSocket('wss://base-sepolia-rpc.publicnode.com', {
+        onOpen: () => {
+            console.log("Base Sepolia WebSocket connected");
+            // Send a subscription request for new heads
+            baseSocket.sendJsonMessage({
+                jsonrpc: "2.0",
+                id: 1,
+                method: "eth_subscribe",
+                params: ["newHeads"]
+            });
+        },
+        onClose: (event) => {
+            console.log("Base Sepolia WebSocket disconnected", event);
+        },
+        onError: (error) => {
+            console.error("Base Sepolia WebSocket error:", error);
+        },
         onMessage: (event) => {
+            console.log("Base message received:", typeof event.data, 
+                typeof event.data === 'string' ? event.data.substring(0, 100) : "Binary data");
+            
             // Increment counter for every message to show real-time activity
             setBaseMessages(prev => prev + 1);
             
@@ -65,6 +84,8 @@ export default function Home() {
             }
         },
         shouldReconnect: () => true,
+        reconnectInterval: 3000,
+        reconnectAttempts: 10,
     });
     
     // Process base message helper function
