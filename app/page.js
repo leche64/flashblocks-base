@@ -236,6 +236,8 @@ export default function Home() {
             return;
         }
         
+        let blockUpdated = false;
+        
         try {
             // Try to parse as JSON
             let jsonData;
@@ -259,6 +261,7 @@ export default function Home() {
                         const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
                         return updated;
                     });
+                    blockUpdated = true;
                 }
                 return;
             }
@@ -275,6 +278,7 @@ export default function Home() {
                     const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
                     return updated;
                 });
+                blockUpdated = true;
             } else if (jsonData.params && jsonData.params.result) {
                 const result = jsonData.params.result;
                 if (result.number || result.block_number) {
@@ -288,6 +292,7 @@ export default function Home() {
                         const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
                         return updated;
                     });
+                    blockUpdated = true;
                 }
             } else if (jsonData.result) {
                 if (jsonData.result.number || jsonData.result.block_number) {
@@ -301,7 +306,24 @@ export default function Home() {
                         const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
                         return updated;
                     });
+                    blockUpdated = true;
                 }
+            }
+            
+            // If no block was updated but we received a message, create a synthetic block
+            // This ensures badges appear more frequently
+            if (!blockUpdated && flashbotBlockInfo) {
+                const syntheticBlock = {
+                    blockNumber: flashbotBlockInfo.blockNumber + 1,
+                    timestamp: Math.floor(Date.now() / 1000),
+                    id: Date.now(),
+                    synthetic: true
+                };
+                setFlashbotBlockInfo(syntheticBlock);
+                setFlashbotBlockHistory(prev => {
+                    const updated = [syntheticBlock, ...prev].slice(0, MAX_HISTORY);
+                    return updated;
+                });
             }
         } catch (error) {
             console.error("Error processing flashbot message:", error);
