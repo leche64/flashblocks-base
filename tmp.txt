@@ -3,3 +3,11 @@ wss://sepolia.flashblocks.base.org/ws
 
 regular: 
 wss://base-sepolia-rpc.publicnode.com
+
+wscat -c wss://sepolia.flashblocks.base.org/ws
+
+wscat -c wss://base-sepolia-rpc.publicnode.com
+
+Base X Flashbots = FlashBlocks
+
+10x change makes Base the fastest EVM chain to date, bringing effective block times from 2 seconds down to 200 milliseconds. live on testnet right now + coming to mainnet in Q2
