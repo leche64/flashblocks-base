@@ -625,6 +625,7 @@ export default function Home() {
                                             }, {})
                                         )
                                         .sort(([blockNumberA], [blockNumberB]) => parseInt(blockNumberB) - parseInt(blockNumberA))
+                                        .slice(0, 3) // Limit to showing the 3 most recent parent blocks
                                         .map(([blockNumber, blocks]) => {
                                             // Find parent block (childNumber === 0)
                                             const parentBlock = blocks.find(b => b.childNumber === 0) || blocks[0];
@@ -644,20 +645,27 @@ export default function Home() {
                                                 >
                                                     {/* Parent block */}
                                                     <motion.div 
-                                                        className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
+                                                        className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center justify-between text-xs whitespace-nowrap"
                                                         layout
                                                     >
-                                                        <Cube size={12} weight="bold" className="mr-1 text-green-300" />
-                                                        <span className="font-mono">{parseInt(blockNumber).toLocaleString()}</span>
-                                                        <span className="mx-1 text-green-400">•</span>
-                                                        <span className="font-mono">{new Date(parentBlock.timestamp * 1000).toLocaleTimeString()}</span>
+                                                        <div className="flex items-center">
+                                                            <Cube size={12} weight="bold" className="mr-1 text-green-300" />
+                                                            <span className="font-mono">{parseInt(blockNumber).toLocaleString()}</span>
+                                                            <span className="mx-1 text-green-400">•</span>
+                                                            <span className="font-mono">{new Date(parentBlock.timestamp * 1000).toLocaleTimeString()}</span>
+                                                        </div>
+                                                        {childBlocks.length > 0 && (
+                                                            <span className="text-[10px] px-1.5 py-0.5 bg-green-800/50 rounded-sm text-green-300 ml-2">
+                                                                {childBlocks.length} tx{childBlocks.length !== 1 ? 's' : ''}
+                                                            </span>
+                                                        )}
                                                     </motion.div>
                                                     
                                                     {/* Child blocks with indentation */}
                                                     {childBlocks.length > 0 && (
                                                         <div className="flex flex-col gap-1 pl-4 border-l-2 border-green-800/30 ml-1.5">
                                                             <AnimatePresence mode="popLayout">
-                                                                {childBlocks.map(block => (
+                                                                {childBlocks.slice(0, 3).map(block => ( // Show only the 3 most recent child blocks
                                                                     <motion.div 
                                                                         key={block.id}
                                                                         className="bg-green-900/30 text-green-200 px-2 py-1 rounded-md flex flex-col text-xs whitespace-nowrap"
@@ -682,6 +690,16 @@ export default function Home() {
                                                                         )}
                                                                     </motion.div>
                                                                 ))}
+                                                                {childBlocks.length > 3 && (
+                                                                    <motion.div 
+                                                                        className="text-[10px] text-green-400/70 pl-2 py-1"
+                                                                        initial={{ opacity: 0 }}
+                                                                        animate={{ opacity: 1 }}
+                                                                        transition={{ duration: 0.2 }}
+                                                                    >
+                                                                        + {childBlocks.length - 3} more transactions
+                                                                    </motion.div>
+                                                                )}
                                                             </AnimatePresence>
                                                         </div>
                                                     )}
