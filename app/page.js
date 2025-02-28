@@ -652,10 +652,6 @@ export default function Home() {
                                         </ul>
                                     </li>
                                 </ul>
-                                
-                                <p className="mt-3 text-gray-400">
-                                    <a href="https://flashblocks.base.org/docs" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">documentation</a>
-                                </p>
                             </div>
                         </details>
                     </div>
@@ -693,6 +689,11 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 2, duration: 0.7 }}
                 >
+                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+                        <a href="https://www.flashbots.net/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Flashbots</a>
+                        <a href="https://github.com/flashbots/rollup-boost?tab=readme-ov-file#core-system-workflow" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Documentation</a>
+                        <a href="https://github.com/flashbots" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">GitHub</a>
+                    </div>
                     <p className="mt-4">
                         Made by <a href="https://x.com/0xblazeit" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">Blaze</a>
                     </p>
