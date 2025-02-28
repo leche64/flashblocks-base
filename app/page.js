@@ -50,7 +50,7 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 0.7 }}
                 >
-                    10x change makes Base the fastest EVM chain to date, bringing effective block times from 2 seconds down to 200 milliseconds.
+                    10x change makes Base the fastest EVM chain to date, decreasing block times from 2 seconds down to 200 milliseconds.
                 </motion.p>
                 
                 <motion.p 
