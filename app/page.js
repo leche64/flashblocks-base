@@ -595,7 +595,13 @@ export default function Home() {
                         <div>
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
-                                    <Monitor size={20} weight="bold" className="text-gray-400" />
+                                    <Image 
+                                        src="/flashblocks.svg" 
+                                        alt="Flashblocks Icon" 
+                                        width={20} 
+                                        height={20} 
+                                        className="text-gray-400" 
+                                    />
                                     <span className="text-sm sm:text-base text-gray-300">Flashblocks (~200ms)</span>
                                 </div>
                                 <div className="text-lg sm:text-xl font-mono font-bold text-green-400">
