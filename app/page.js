@@ -818,8 +818,8 @@ export default function Home() {
                 >
                     <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
                         <a href="https://www.flashbots.net/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Flashbots</a>
-                        <a href="https://github.com/flashbots/rollup-boost?tab=readme-ov-file#core-system-workflow" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Documentation</a>
-                        <a href="https://github.com/flashbots" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">GitHub</a>
+                        <a href="https://github.com/flashbots/rollup-boost?tab=readme-ov-file#core-system-workflow" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Flashblocks</a>
+                        <a href="https://www.base.org/builders" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Build On Base</a>
                     </div>
                     <p className="mt-4">
                         Made by <a href="https://x.com/0xblazeit" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">Blaze</a>
