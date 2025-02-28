@@ -327,8 +327,6 @@ export default function Home() {
             return;
         }
         
-        let blockUpdated = false;
-        
         try {
             // Try to parse as JSON
             let jsonData;
@@ -347,75 +345,71 @@ export default function Home() {
                     const newBlock = {
                         blockNumber,
                         timestamp,
-                        childNumber: 0, // Add child number
-                        id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+                        childNumber: 0,
+                        id: `flashbot-${blockNumber}-${Date.now()}`
                     };
+                    
+                    // Update state in a single batch to prevent UI inconsistencies
+                    const updatedHistory = [...flashbotBlockHistory]
+                        .filter(b => !(b.blockNumber === blockNumber && b.childNumber === 0))
+                        .slice(0, MAX_HISTORY - 1);
+                    
                     setFlashbotBlockInfo(newBlock);
-                    setFlashbotBlockHistory(prev => {
-                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
-                        return updated;
-                    });
-                    blockUpdated = true;
+                    setFlashbotBlockHistory([newBlock, ...updatedHistory]);
                 }
                 return;
             }
             
             // Successfully parsed JSON, now extract block info
+            let newBlock = null;
+            
             if (jsonData.base) {
                 const blockNumber = parseInt(jsonData.base.block_number, 16);
                 const timestamp = parseInt(jsonData.base.timestamp, 16);
-                const newBlock = {
+                newBlock = {
                     blockNumber,
                     timestamp,
-                    childNumber: 0, // Add child number
-                    id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+                    childNumber: 0,
+                    id: `flashbot-${blockNumber}-${Date.now()}`
                 };
-                setFlashbotBlockInfo(newBlock);
-                setFlashbotBlockHistory(prev => {
-                    const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
-                    return updated;
-                });
-                blockUpdated = true;
             } else if (jsonData.params && jsonData.params.result) {
                 const result = jsonData.params.result;
                 if (result.number || result.block_number) {
                     const blockNumber = parseInt(result.number || result.block_number, 16);
                     const timestamp = parseInt(result.timestamp, 16);
-                    const newBlock = {
+                    newBlock = {
                         blockNumber,
                         timestamp,
-                        childNumber: 0, // Add child number
-                        id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+                        childNumber: 0,
+                        id: `flashbot-${blockNumber}-${Date.now()}`
                     };
-                    setFlashbotBlockInfo(newBlock);
-                    setFlashbotBlockHistory(prev => {
-                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
-                        return updated;
-                    });
-                    blockUpdated = true;
                 }
             } else if (jsonData.result) {
                 if (jsonData.result.number || jsonData.result.block_number) {
                     const blockNumber = parseInt(jsonData.result.number || jsonData.result.block_number, 16);
                     const timestamp = parseInt(jsonData.result.timestamp, 16);
-                    const newBlock = {
+                    newBlock = {
                         blockNumber,
                         timestamp,
-                        childNumber: 0, // Add child number
-                        id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+                        childNumber: 0,
+                        id: `flashbot-${blockNumber}-${Date.now()}`
                     };
-                    setFlashbotBlockInfo(newBlock);
-                    setFlashbotBlockHistory(prev => {
-                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
-                        return updated;
-                    });
-                    blockUpdated = true;
                 }
             }
             
-            // If no block was updated but we received a message, create a child block
-            // This simulates the child blocks in flashblocks
-            if (!blockUpdated && flashbotBlockInfo) {
+            if (newBlock) {
+                // Update state in a single batch to prevent UI inconsistencies
+                const updatedHistory = [...flashbotBlockHistory]
+                    .filter(b => !(b.blockNumber === newBlock.blockNumber && b.childNumber === 0))
+                    .slice(0, MAX_HISTORY - 1);
+                
+                setFlashbotBlockInfo(newBlock);
+                setFlashbotBlockHistory([newBlock, ...updatedHistory]);
+                return;
+            }
+            
+            // If we get here, we didn't find a new parent block, so create a child block
+            if (flashbotBlockInfo) {
                 // Find the latest parent block number
                 const parentBlockNumber = flashbotBlockInfo.blockNumber;
                 
@@ -424,19 +418,22 @@ export default function Home() {
                     .filter(block => block.blockNumber === parentBlockNumber)
                     .reduce((max, block) => Math.max(max, block.childNumber || 0), 0);
                 
+                // Generate a random tx hash for the child block
+                const txHash = `0x${Array.from({length: 64}, () => 
+                    '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('')}`;
+                
                 // Create a new child block with incremented child number
                 const childBlock = {
                     blockNumber: parentBlockNumber,
                     timestamp: Math.floor(Date.now() / 1000),
                     childNumber: highestChildNumber + 1,
+                    txHash: txHash,
                     id: `flashbot-child-${parentBlockNumber}-${highestChildNumber + 1}-${Date.now()}`
                 };
                 
+                // Update state in a single batch
                 setFlashbotBlockInfo(childBlock);
-                setFlashbotBlockHistory(prev => {
-                    const updated = [childBlock, ...prev].slice(0, MAX_HISTORY);
-                    return updated;
-                });
+                setFlashbotBlockHistory([childBlock, ...flashbotBlockHistory].slice(0, MAX_HISTORY));
             }
         } catch (error) {
             console.error("Error processing flashbot message:", error);
@@ -613,30 +610,84 @@ export default function Home() {
                                     transition={{ duration: 0.3 }}
                                 />
                             </div>
+                            
+                            {/* Updated Flashblocks visualization with hierarchy */}
                             <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
-                                <div className="flex gap-2 flex-nowrap">
-                                    <AnimatePresence>
-                                        {flashbotBlockHistory.map((block) => (
-                                            <motion.div 
-                                                className={`${block.childNumber > 0 ? 'bg-green-900/30' : 'bg-green-900/50'} text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap`}
-                                                initial={{ opacity: 0, scale: 0.9, x: -10 }}
-                                                animate={{ opacity: 1, scale: 1, x: 0 }}
-                                                exit={{ opacity: 0, scale: 0.9, x: 10 }}
-                                                key={block.id}
-                                                layout
-                                                transition={{ duration: 0.3 }}
-                                            >
-                                                <Cube size={12} weight="bold" className="mr-1 text-green-300" />
-                                                <span className="font-mono">{block.blockNumber.toLocaleString()}</span>
-                                                {block.childNumber > 0 && (
-                                                    <span className="ml-1 px-1.5 py-0.5 bg-green-800/50 rounded-sm text-green-300 text-[10px]">
-                                                        #{block.childNumber}
-                                                    </span>
-                                                )}
-                                                <span className="mx-1 text-green-400">•</span>
-                                                <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
-                                            </motion.div>
-                                        ))}
+                                <div className="flex flex-col gap-2">
+                                    <AnimatePresence mode="popLayout">
+                                        {/* Group blocks by parent block number */}
+                                        {Object.entries(
+                                            flashbotBlockHistory.reduce((acc, block) => {
+                                                const key = block.blockNumber;
+                                                if (!acc[key]) acc[key] = [];
+                                                acc[key].push(block);
+                                                return acc;
+                                            }, {})
+                                        )
+                                        .sort(([blockNumberA], [blockNumberB]) => parseInt(blockNumberB) - parseInt(blockNumberA))
+                                        .map(([blockNumber, blocks]) => {
+                                            // Find parent block (childNumber === 0)
+                                            const parentBlock = blocks.find(b => b.childNumber === 0) || blocks[0];
+                                            // Get child blocks
+                                            const childBlocks = blocks.filter(b => b.childNumber > 0)
+                                                .sort((a, b) => a.childNumber - b.childNumber);
+                                            
+                                            return (
+                                                <motion.div
+                                                    key={`group-${blockNumber}`}
+                                                    className="flex flex-col gap-1"
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    layout
+                                                >
+                                                    {/* Parent block */}
+                                                    <motion.div 
+                                                        className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
+                                                        layout
+                                                    >
+                                                        <Cube size={12} weight="bold" className="mr-1 text-green-300" />
+                                                        <span className="font-mono">{parseInt(blockNumber).toLocaleString()}</span>
+                                                        <span className="mx-1 text-green-400">•</span>
+                                                        <span className="font-mono">{new Date(parentBlock.timestamp * 1000).toLocaleTimeString()}</span>
+                                                    </motion.div>
+                                                    
+                                                    {/* Child blocks with indentation */}
+                                                    {childBlocks.length > 0 && (
+                                                        <div className="flex flex-col gap-1 pl-4 border-l-2 border-green-800/30 ml-1.5">
+                                                            <AnimatePresence mode="popLayout">
+                                                                {childBlocks.map(block => (
+                                                                    <motion.div 
+                                                                        key={block.id}
+                                                                        className="bg-green-900/30 text-green-200 px-2 py-1 rounded-md flex flex-col text-xs whitespace-nowrap"
+                                                                        initial={{ opacity: 0, scale: 0.9 }}
+                                                                        animate={{ opacity: 1, scale: 1 }}
+                                                                        exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                                                                        transition={{ duration: 0.2 }}
+                                                                        layout
+                                                                    >
+                                                                        <div className="flex items-center">
+                                                                            <ArrowsHorizontal size={10} weight="bold" className="mr-1 text-green-300" />
+                                                                            <span className="px-1.5 py-0.5 bg-green-800/50 rounded-sm text-green-300 text-[10px]">
+                                                                                #{block.childNumber}
+                                                                            </span>
+                                                                            <span className="mx-1 text-green-400">•</span>
+                                                                            <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'})}</span>
+                                                                        </div>
+                                                                        {block.txHash && (
+                                                                            <div className="mt-1 pl-3 font-mono text-[9px] text-green-300/70 overflow-hidden text-ellipsis">
+                                                                                tx: {block.txHash.substring(0, 10)}...{block.txHash.substring(block.txHash.length - 8)}
+                                                                            </div>
+                                                                        )}
+                                                                    </motion.div>
+                                                                ))}
+                                                            </AnimatePresence>
+                                                        </div>
+                                                    )}
+                                                </motion.div>
+                                            );
+                                        })}
                                     </AnimatePresence>
                                 </div>
                             </div>
