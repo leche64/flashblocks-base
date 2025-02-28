@@ -466,21 +466,30 @@ export default function Home() {
                 
                 <div className="flex flex-col gap-y-4 sm:gap-y-6">
                     <motion.p 
-                        className="text-lg sm:text-xl md:text-2xl tracking-wider"
+                        className="text-2xl md:text-3xl tracking-widest"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.7 }}
                     >
                         Experience the fastest EVM chain
                     </motion.p>
+
+                    <motion.p 
+                        className="text-lg md:text-xl tracking-wider"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.7 }}
+                    >
+                        10x performance upgrade, bringing block times down from 2s to 200ms
+                    </motion.p>
                     
                     <motion.p 
-                        className="text-base sm:text-lg md:text-xl text-green-400 font-semibold"
+                        className="text-sm sm:text-xs text-green-400 font-semibold tracking-tight"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.8, duration: 0.7 }}
                     >
-                        live on Base Sepolia testnet
+                        * live on Base Sepolia testnet
                         <br />
                         coming to Base mainnet in Q2
                     </motion.p>
