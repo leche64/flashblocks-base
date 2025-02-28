@@ -347,6 +347,7 @@ export default function Home() {
                     const newBlock = {
                         blockNumber,
                         timestamp,
+                        childNumber: 0, // Add child number
                         id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setFlashbotBlockInfo(newBlock);
@@ -366,6 +367,7 @@ export default function Home() {
                 const newBlock = {
                     blockNumber,
                     timestamp,
+                    childNumber: 0, // Add child number
                     id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                 };
                 setFlashbotBlockInfo(newBlock);
@@ -382,6 +384,7 @@ export default function Home() {
                     const newBlock = {
                         blockNumber,
                         timestamp,
+                        childNumber: 0, // Add child number
                         id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setFlashbotBlockInfo(newBlock);
@@ -398,6 +401,7 @@ export default function Home() {
                     const newBlock = {
                         blockNumber,
                         timestamp,
+                        childNumber: 0, // Add child number
                         id: `flashbot-${blockNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
                     };
                     setFlashbotBlockInfo(newBlock);
@@ -409,18 +413,28 @@ export default function Home() {
                 }
             }
             
-            // If no block was updated but we received a message, create a synthetic block
-            // This ensures badges appear more frequently
+            // If no block was updated but we received a message, create a child block
+            // This simulates the child blocks in flashblocks
             if (!blockUpdated && flashbotBlockInfo) {
-                const syntheticBlock = {
-                    blockNumber: flashbotBlockInfo.blockNumber + 1,
+                // Find the latest parent block number
+                const parentBlockNumber = flashbotBlockInfo.blockNumber;
+                
+                // Find the highest child number for this parent block
+                const highestChildNumber = flashbotBlockHistory
+                    .filter(block => block.blockNumber === parentBlockNumber)
+                    .reduce((max, block) => Math.max(max, block.childNumber || 0), 0);
+                
+                // Create a new child block with incremented child number
+                const childBlock = {
+                    blockNumber: parentBlockNumber,
                     timestamp: Math.floor(Date.now() / 1000),
-                    id: `flashbot-synthetic-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                    synthetic: true
+                    childNumber: highestChildNumber + 1,
+                    id: `flashbot-child-${parentBlockNumber}-${highestChildNumber + 1}-${Date.now()}`
                 };
-                setFlashbotBlockInfo(syntheticBlock);
+                
+                setFlashbotBlockInfo(childBlock);
                 setFlashbotBlockHistory(prev => {
-                    const updated = [syntheticBlock, ...prev].slice(0, MAX_HISTORY);
+                    const updated = [childBlock, ...prev].slice(0, MAX_HISTORY);
                     return updated;
                 });
             }
@@ -600,24 +614,71 @@ export default function Home() {
                                 />
                             </div>
                             <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
-                                <div className="flex gap-2 flex-nowrap">
+                                <div className="flex flex-col gap-2">
                                     <AnimatePresence>
-                                        {flashbotBlockHistory.map((block) => (
-                                            <motion.div 
-                                                className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
-                                                initial={{ opacity: 0, scale: 0.9, x: -10 }}
-                                                animate={{ opacity: 1, scale: 1, x: 0 }}
-                                                exit={{ opacity: 0, scale: 0.9, x: 10 }}
-                                                key={block.id}
-                                                layout
-                                                transition={{ duration: 0.3 }}
-                                            >
-                                                <Cube size={12} weight="bold" className="mr-1 text-green-300" />
-                                                <span className="font-mono">{block.blockNumber.toLocaleString()}</span>
-                                                <span className="mx-1 text-green-400">•</span>
-                                                <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
-                                            </motion.div>
-                                        ))}
+                                        {/* Group blocks by parent block number */}
+                                        {Array.from(
+                                            flashbotBlockHistory.reduce((groups, block) => {
+                                                const key = block.blockNumber;
+                                                if (!groups.has(key)) {
+                                                    groups.set(key, []);
+                                                }
+                                                groups.get(key).push(block);
+                                                return groups;
+                                            }, new Map())
+                                        ).map(([blockNumber, blocks]) => {
+                                            // Sort blocks by child number
+                                            const sortedBlocks = [...blocks].sort((a, b) => a.childNumber - b.childNumber);
+                                            const parentBlock = sortedBlocks.find(b => b.childNumber === 0) || sortedBlocks[0];
+                                            const childBlocks = sortedBlocks.filter(b => b.childNumber > 0);
+                                            
+                                            return (
+                                                <div key={`group-${blockNumber}`} className="flex flex-col">
+                                                    {/* Parent block */}
+                                                    <motion.div 
+                                                        className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap self-start"
+                                                        initial={{ opacity: 0, scale: 0.9, x: -10 }}
+                                                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                        exit={{ opacity: 0, scale: 0.9, x: 10 }}
+                                                        layout
+                                                        transition={{ duration: 0.3 }}
+                                                    >
+                                                        <Cube size={12} weight="bold" className="mr-1 text-green-300" />
+                                                        <span className="font-mono">{parentBlock.blockNumber.toLocaleString()}</span>
+                                                        <span className="mx-1 text-green-400">•</span>
+                                                        <span className="font-mono">{new Date(parentBlock.timestamp * 1000).toLocaleTimeString()}</span>
+                                                    </motion.div>
+                                                    
+                                                    {/* Child blocks with connector lines */}
+                                                    {childBlocks.length > 0 && (
+                                                        <div className="pl-4 mt-1 flex flex-wrap gap-1 relative">
+                                                            {/* Vertical connector line */}
+                                                            <div className="absolute left-1.5 top-0 w-0.5 h-full bg-green-800/50"></div>
+                                                            
+                                                            {childBlocks.map((block) => (
+                                                                <motion.div 
+                                                                    key={block.id}
+                                                                    className="bg-green-800/30 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap relative"
+                                                                    initial={{ opacity: 0, scale: 0.9 }}
+                                                                    animate={{ opacity: 1, scale: 1 }}
+                                                                    exit={{ opacity: 0, scale: 0.9 }}
+                                                                    layout
+                                                                    transition={{ duration: 0.3 }}
+                                                                >
+                                                                    {/* Horizontal connector line */}
+                                                                    <div className="absolute left-[-8px] top-1/2 w-2 h-0.5 bg-green-800/50"></div>
+                                                                    
+                                                                    <span className="px-1 py-0.5 bg-green-800/50 rounded-sm text-green-300 text-[10px] mr-1">
+                                                                        #{block.childNumber}
+                                                                    </span>
+                                                                    <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString().split(':').slice(1).join(':')}</span>
+                                                                </motion.div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </AnimatePresence>
                                 </div>
                             </div>
