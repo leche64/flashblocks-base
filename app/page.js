@@ -77,7 +77,7 @@ export default function Home() {
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <Monitor size={20} weight="bold" className="text-gray-400" />
-                                <span className="text-sm sm:text-base text-gray-300">Base Sepolia RPC</span>
+                                <span className="text-sm sm:text-base text-gray-300">Fullblocks (2s)</span>
                             </div>
                             <div className="text-lg sm:text-xl font-mono font-bold text-blue-400">
                                 {baseMessages.toLocaleString()}
@@ -103,7 +103,7 @@ export default function Home() {
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <Monitor size={20} weight="bold" className="text-gray-400" />
-                                <span className="text-sm sm:text-base text-gray-300">Flashblocks Base</span>
+                                <span className="text-sm sm:text-base text-gray-300">Flashblocks (200ms)</span>
                             </div>
                             <div className="text-lg sm:text-xl font-mono font-bold text-green-400">
                                 {flashbotMessages.toLocaleString()}
@@ -118,10 +118,6 @@ export default function Home() {
                             />
                         </div>
                     </div>
-                    
-                    <p className="text-xs sm:text-sm text-gray-500 mt-4">
-                        Live message count from both networks
-                    </p>
                 </motion.div>
             </motion.div>
         </div>
