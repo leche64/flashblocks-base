@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/react"
 import { NavBar } from "@/components/NavBar";
 const DepatureMono = localFont({
   src: "./fonts/DepartureMono-Regular.woff",
