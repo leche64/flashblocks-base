@@ -393,7 +393,7 @@ export default function Home() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.8, duration: 0.7 }}
                     >
-                        live on testnet right now
+                        live on testnet
                         <br />
                         coming to mainnet in Q2
                     </motion.p>
