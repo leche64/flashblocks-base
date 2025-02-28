@@ -1,0 +1,5 @@
+flashblocks:
+wss://sepolia.flashblocks.base.org/ws
+
+regular: 
+wss://base-sepolia-rpc.publicnode.com
