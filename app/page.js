@@ -492,14 +492,36 @@ export default function Home() {
                     </motion.p>
                     
                     <motion.p 
-                        className="text-sm sm:text-xs text-green-400 font-semibold tracking-tight"
+                        className="text-sm sm:text-xs text-green-400 font-semibold tracking-tight flex flex-col items-center justify-center"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.8, duration: 0.7 }}
                     >
-                        * live on Base Sepolia testnet
-                        <br />
-                        coming to Base mainnet in Q2
+                        <span className="flex items-center gap-1">
+                            <motion.span
+                                animate={{
+                                    opacity: [1, 0.7, 1],
+                                    scale: [1, 1.1, 1]
+                                }}
+                                transition={{
+                                    duration: 3.5,
+                                    ease: "easeInOut",
+                                    repeat: Infinity,
+                                    repeatType: "reverse"
+                                }}
+                                className="inline-flex"
+                            >
+                                <Image 
+                                    src="/flashblocks.svg" 
+                                    alt="Flashblocks Icon" 
+                                    width={14} 
+                                    height={14} 
+                                    className="text-green-400" 
+                                />
+                            </motion.span>
+                            <span>live on Base Sepolia testnet</span>
+                        </span>
+                        <span>coming to Base mainnet in Q2</span>
                     </motion.p>
                 </div>
                 
