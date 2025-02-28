@@ -488,7 +488,7 @@ export default function Home() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.7 }}
                     >
-                        10x performance upgrade, bringing block times down from 2s to 200ms
+                        10x performance upgrade, bringing block times down from ~2s to ~200ms
                     </motion.p>
                     
                     <motion.p 
