@@ -507,9 +507,22 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.4, duration: 0.7 }}
             >
-                <p>Comparison ratio: {flashbotMessages > 0 && baseMessages > 0 ? 
-                    `${(flashbotMessages / baseMessages).toFixed(1)}x faster` : 
-                    "Calculating..."}</p>
+                {flashbotMessages > 0 && baseMessages > 0 ? (
+                    <motion.p
+                        initial={{ scale: 1 }}
+                        animate={{ 
+                            scale: Math.min(1.5, 1 + ((flashbotMessages / baseMessages) * 0.05)),
+                            color: `rgb(${Math.min(255, 74 + (flashbotMessages / baseMessages) * 20)}, ${Math.min(255, 222 + (flashbotMessages / baseMessages) * 5)}, ${Math.min(255, 74 + (flashbotMessages / baseMessages) * 5)})`
+                        }}
+                        transition={{ duration: 0.3 }}
+                        className="font-semibold"
+                    >
+                        <span className="text-gray-400">Comparison ratio: </span>
+                        <span>{(flashbotMessages / baseMessages).toFixed(1)}x faster</span>
+                    </motion.p>
+                ) : (
+                    <p>Comparison ratio: Calculating...</p>
+                )}
             </motion.div>
         </div>
     )
