@@ -79,15 +79,24 @@ export default function Home() {
       setIsBaseConnected(true);
       setBaseLastError(null);
       
-      // Subscribe to new block headers after connection is established
-      const subscribeMessage = JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "eth_subscribe",
-        params: ["newHeads"]
-      });
-      baseSendMessage(subscribeMessage);
-      console.log("Sent subscription request to Base WebSocket");
+      // Add a small delay before sending the subscription message
+      // to ensure the connection is fully established
+      setTimeout(() => {
+        try {
+          // Subscribe to new block headers after connection is established
+          const subscribeMessage = JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "eth_subscribe",
+            params: ["newHeads"]
+          });
+          baseSendMessage(subscribeMessage);
+          console.log("Sent subscription request to Base WebSocket");
+        } catch (error) {
+          console.error("Failed to send subscription message:", error);
+          setBaseLastError(`Failed to subscribe: ${error.message || 'Unknown error'}`);
+        }
+      }, 500);
     },
     onClose: (event) => {
       console.error("Base WebSocket closed", {
@@ -223,71 +232,6 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-white">Base Sepolia Block Comparison</h1>
       </header>
 
-      {/* Timing Statistics Panel */}
-      <div className="bg-slate-800 rounded-xl p-6 shadow-lg border-4 border-slate-900">
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <ArrowsHorizontal size={24} className="text-white" weight="bold" />
-          Block Timing Statistics
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-700 p-4 rounded-lg text-white">
-            <div className="text-center text-2xl font-bold">{timingStats.total}</div>
-            <div className="text-center text-sm">Total Blocks Compared</div>
-          </div>
-          
-          <div className="bg-slate-700 p-4 rounded-lg text-green-300">
-            <div className="text-center text-2xl font-bold">{timingStats.flashFaster}</div>
-            <div className="text-center text-sm">Flash Blocks Faster</div>
-            <div className="text-center text-xs mt-1">
-              {timingStats.total > 0 ? `(${Math.round(timingStats.flashFaster / timingStats.total * 100)}%)` : '(0%)'}
-            </div>
-          </div>
-          
-          <div className="bg-slate-700 p-4 rounded-lg text-blue-300">
-            <div className="text-center text-2xl font-bold">{timingStats.baseFaster}</div>
-            <div className="text-center text-sm">Base Blocks Faster</div>
-            <div className="text-center text-xs mt-1">
-              {timingStats.total > 0 ? `(${Math.round(timingStats.baseFaster / timingStats.total * 100)}%)` : '(0%)'}
-            </div>
-          </div>
-          
-          <div className="bg-slate-700 p-4 rounded-lg text-yellow-300">
-            <div className="text-center text-2xl font-bold">{timingStats.equal}</div>
-            <div className="text-center text-sm">Received Simultaneously</div>
-            <div className="text-center text-xs mt-1">
-              {timingStats.total > 0 ? `(${Math.round(timingStats.equal / timingStats.total * 100)}%)` : '(0%)'}
-            </div>
-          </div>
-        </div>
-        
-        {timingStats.total > 0 && (
-          <div className="mt-4 bg-slate-700 p-4 rounded-lg">
-            <div className="h-6 w-full bg-slate-600 rounded-full overflow-hidden">
-              <div className="flex h-full">
-                <div 
-                  className="bg-green-500 h-full" 
-                  style={{ width: `${Math.round(timingStats.flashFaster / timingStats.total * 100)}%` }}
-                />
-                <div 
-                  className="bg-yellow-500 h-full" 
-                  style={{ width: `${Math.round(timingStats.equal / timingStats.total * 100)}%` }}
-                />
-                <div 
-                  className="bg-blue-500 h-full" 
-                  style={{ width: `${Math.round(timingStats.baseFaster / timingStats.total * 100)}%` }}
-                />
-              </div>
-            </div>
-            <div className="flex justify-between text-xs mt-1">
-              <span className="text-green-300">Flash Faster</span>
-              <span className="text-yellow-300">Equal</span>
-              <span className="text-blue-300">Base Faster</span>
-            </div>
-          </div>
-        )}
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Flash Blocks Panel */}
         <div className="bg-slate-800 rounded-xl p-6 shadow-lg border-4 border-slate-900 flex flex-col">
@@ -383,126 +327,6 @@ export default function Home() {
               ))}
             </AnimatePresence>
           </div>
-        </div>
-      </div>
-
-      {/* Comparison Section */}
-      <div className="bg-slate-800 rounded-xl p-6 shadow-lg border-4 border-slate-900 mt-6">
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <ArrowsHorizontal size={24} className="text-white" weight="bold" />
-          Block Comparison
-        </h2>
-        
-        <div className="space-y-4 overflow-y-auto max-h-[500px]">
-          <AnimatePresence>
-            {allBlocks.map((blockData, index) => {
-              const flashBlock = blockData.flash;
-              const baseBlock = blockData.base;
-              const hasFlash = !!flashBlock;
-              const hasBase = !!baseBlock;
-              const blockNumber = blockData.number;
-              
-              // Calculate which one was faster
-              const timing = blockTimings[blockNumber] || {};
-              let timingResult = null;
-              let timingDiff = null;
-              
-              if (timing.flash && timing.base) {
-                timingDiff = Math.abs(timing.flash - timing.base);
-                if (timing.flash < timing.base - 50) {
-                  timingResult = 'flash';
-                } else if (timing.base < timing.flash - 50) {
-                  timingResult = 'base';
-                } else {
-                  timingResult = 'equal';
-                }
-              }
-              
-              return (
-                <motion.div
-                  key={`compare-${blockNumber}-${index}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="bg-slate-700 p-4 rounded-lg text-white font-mono text-sm"
-                >
-                  <div className="text-center mb-2 text-lg font-bold">Block #{blockNumber}</div>
-                  
-                  {timingResult && (
-                    <div className={`text-center mb-2 text-sm ${
-                      timingResult === 'flash' ? 'text-green-300' : 
-                      timingResult === 'base' ? 'text-blue-300' : 
-                      'text-yellow-300'
-                    }`}>
-                      {timingResult === 'flash' && (
-                        <span>Flash received {timingDiff}ms faster ⚡</span>
-                      )}
-                      {timingResult === 'base' && (
-                        <span>Base received {timingDiff}ms faster ⚡</span>
-                      )}
-                      {timingResult === 'equal' && (
-                        <span>Received simultaneously (±50ms)</span>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="font-bold"></div>
-                    <div className="font-bold text-green-300 text-center">FLASH</div>
-                    <div className="font-bold text-blue-300 text-center">BASE</div>
-                    
-                    <div>HASH</div>
-                    <div className={`truncate text-center ${!hasFlash && 'text-gray-500'}`}>
-                      {hasFlash ? flashBlock.hash : 'N/A'}
-                    </div>
-                    <div className={`truncate text-center ${!hasBase && 'text-gray-500'}`}>
-                      {hasBase ? baseBlock.hash : 'N/A'}
-                    </div>
-                    
-                    <div>TIMESTAMP</div>
-                    <div className={`text-center ${!hasFlash && 'text-gray-500'}`}>
-                      {hasFlash ? new Date(flashBlock.timestamp * 1000).toLocaleTimeString() : 'N/A'}
-                    </div>
-                    <div className={`text-center ${!hasBase && 'text-gray-500'}`}>
-                      {hasBase ? new Date(baseBlock.timestamp * 1000).toLocaleTimeString() : 'N/A'}
-                    </div>
-                    
-                    <div>TRANSACTIONS</div>
-                    <div className={`text-center ${!hasFlash && 'text-gray-500'}`}>
-                      {hasFlash ? flashBlock.transactions : 'N/A'}
-                    </div>
-                    <div className={`text-center ${!hasBase && 'text-gray-500'}`}>
-                      {hasBase ? baseBlock.transactions : 'N/A'}
-                    </div>
-                    
-                    <div>GAS USED</div>
-                    <div className={`text-center ${!hasFlash && 'text-gray-500'}`}>
-                      {hasFlash ? flashBlock.gasUsed : 'N/A'}
-                    </div>
-                    <div className={`text-center ${!hasBase && 'text-gray-500'}`}>
-                      {hasBase ? baseBlock.gasUsed : 'N/A'}
-                    </div>
-                    
-                    <div>BASE FEE</div>
-                    <div className={`text-center ${!hasFlash && 'text-gray-500'}`}>
-                      {hasFlash ? `${flashBlock.baseFeePerGas} wei` : 'N/A'}
-                    </div>
-                    <div className={`text-center ${!hasBase && 'text-gray-500'}`}>
-                      {hasBase ? `${baseBlock.baseFeePerGas} wei` : 'N/A'}
-                    </div>
-                    
-                    <div>RECEIVED AT</div>
-                    <div className={`text-center ${!hasFlash && 'text-gray-500'}`}>
-                      {hasFlash && timing.flash ? new Date(timing.flash).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3}) : 'N/A'}
-                    </div>
-                    <div className={`text-center ${!hasBase && 'text-gray-500'}`}>
-                      {hasBase && timing.base ? new Date(timing.base).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3}) : 'N/A'}
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
         </div>
       </div>
     </div>
