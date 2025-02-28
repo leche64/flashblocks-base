@@ -16,6 +16,8 @@ export default function Home() {
   const [flashMessagesCount, setFlashMessagesCount] = useState(0);
   const [baseMessagesCount, setBaseMessagesCount] = useState(0);
   const [raceWinner, setRaceWinner] = useState(null);
+  const [totalFlashBlocks, setTotalFlashBlocks] = useState(0);
+  const [totalBaseBlocks, setTotalBaseBlocks] = useState(0);
   
   // Flash Blocks WebSocket
   const { lastMessage: flashLastMessage } = useWebSocket("wss://sepolia.flashblocks.base.org/ws", {
@@ -62,6 +64,10 @@ export default function Home() {
           if (prev.some(block => block.number === blockInfo.number)) {
             return prev; // Skip adding duplicate block
           }
+          
+          // Increment total flash blocks counter
+          setTotalFlashBlocks(current => current + 1);
+          
           return [blockInfo, ...prev].slice(0, 5);
         });
       } catch (error) {
@@ -170,6 +176,10 @@ export default function Home() {
           if (prev.some(block => block.number === blockInfo.number)) {
             return prev; // Skip adding duplicate block
           }
+          
+          // Increment total base blocks counter
+          setTotalBaseBlocks(current => current + 1);
+          
           return [blockInfo, ...prev].slice(0, 5);
         });
       } catch (error) {
@@ -226,19 +236,19 @@ export default function Home() {
     }
   });
 
-  // Check for race winner based on blocks instead of messages
+  // Check for race winner based on message counts
   useEffect(() => {
     if (raceWinner) return; // Race already has a winner
     
-    if (flashBlocks.length >= 420 && baseBlocks.length < 420) {
+    if (flashMessagesCount >= 420 && baseMessagesCount < 420) {
       setRaceWinner('flash');
-    } else if (baseBlocks.length >= 420 && flashBlocks.length < 420) {
+    } else if (baseMessagesCount >= 420 && flashMessagesCount < 420) {
       setRaceWinner('base');
-    } else if (flashBlocks.length >= 420 && baseBlocks.length >= 420) {
+    } else if (flashMessagesCount >= 420 && baseMessagesCount >= 420) {
       // Both reached the goal at the same time (or in the same render cycle)
       setRaceWinner('tie');
     }
-  }, [flashBlocks.length, baseBlocks.length, raceWinner]);
+  }, [flashMessagesCount, baseMessagesCount, raceWinner]);
 
   return (
     <div className="grid grid-rows-[auto_auto_1fr] min-h-screen p-8 pb-20 gap-8 sm:p-20 bg-slate-900">
@@ -254,109 +264,169 @@ export default function Home() {
           Block Race - First to 420 Blocks Wins!
         </h2>
         
-        <div className="relative h-24 bg-slate-700 rounded-lg overflow-hidden mb-4">
-          {/* Finish Line */}
-          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white z-10 flex items-center justify-center">
-            <div className="absolute -left-7 text-white font-bold">420</div>
+        <div className="space-y-6">
+          {/* Flash Blocks Track */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-white mb-1">
+              <div className="h-3 w-3 bg-green-400 rounded-full"></div>
+              <span>Flash: {flashMessagesCount} blocks</span>
+            </div>
+            
+            <div className="relative h-8 bg-slate-700 rounded-lg overflow-hidden">
+              {/* Finish Line */}
+              <div className="absolute right-0 top-0 bottom-0 w-1 bg-white z-10 flex items-center justify-center">
+                <div className="absolute -left-7 text-white font-bold">420</div>
+              </div>
+              
+              {/* Progress Markers */}
+              {[100, 200, 300].map(marker => (
+                <div 
+                  key={`flash-${marker}`} 
+                  className="absolute top-0 bottom-0 w-px bg-slate-600 z-0 flex items-center justify-center"
+                  style={{ left: `${(marker / 420) * 100}%` }}
+                >
+                  <div className="absolute -left-4 text-slate-400 text-sm">{marker}</div>
+                </div>
+              ))}
+              
+              {/* Flash Progress Bar */}
+              <motion.div 
+                className="absolute top-0 left-0 bottom-0 bg-green-500/30 z-0"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min((flashMessagesCount / 420) * 100, 100)}%` }}
+                transition={{ type: "spring", stiffness: 100, damping: 15 }}
+              />
+              
+              {/* Flash Message Ticks - Show only the most recent 100 ticks for performance */}
+              <div className="absolute top-0 left-0 bottom-0 w-full">
+                {Array.from({ length: Math.min(flashMessagesCount, 100) }, (_, i) => (
+                  <motion.div
+                    key={`flash-tick-${i}`}
+                    className="absolute top-0 bottom-0 w-0.5 bg-green-400 z-5"
+                    style={{ 
+                      left: `${Math.min(((flashMessagesCount - i) / 420) * 100, 100)}%`,
+                      opacity: 1 - (i / 100) * 0.8 // Fade out older ticks
+                    }}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1 - (i / 100) * 0.8, height: '100%' }}
+                    transition={{ duration: 0.2 }}
+                  />
+                ))}
+              </div>
+              
+              {/* Flash Racer */}
+              <motion.div 
+                className="absolute top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-green-400 shadow-lg z-20 flex items-center justify-center"
+                initial={{ left: 0 }}
+                animate={{ 
+                  left: `${Math.min((flashMessagesCount / 420) * 100, 100)}%`,
+                  scale: raceWinner === 'flash' ? [1, 1.5, 1] : 1
+                }}
+                transition={{ 
+                  left: { type: "spring", stiffness: 100, damping: 15, mass: 0.8 },
+                  scale: { repeat: raceWinner === 'flash' ? Infinity : 0, duration: 1 }
+                }}
+              >
+                <span className="text-xs font-bold">F</span>
+                {raceWinner === 'flash' && (
+                  <motion.div 
+                    className="absolute -top-8 whitespace-nowrap text-green-300 font-bold"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    WINNER!
+                  </motion.div>
+                )}
+              </motion.div>
+            </div>
           </div>
           
-          {/* Progress Markers */}
-          {[100, 200, 300].map(marker => (
-            <div 
-              key={marker} 
-              className="absolute top-0 bottom-0 w-px bg-slate-600 z-0 flex items-center justify-center"
-              style={{ left: `${(marker / 420) * 100}%` }}
-            >
-              <div className="absolute -left-4 text-slate-400 text-sm">{marker}</div>
+          {/* Base Blocks Track */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-white mb-1">
+              <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
+              <span>Base: {baseMessagesCount} blocks</span>
             </div>
-          ))}
-          
-          {/* Flash Racer */}
-          <motion.div 
-            className="absolute top-6 h-6 w-6 rounded-full bg-green-400 shadow-lg z-20 flex items-center justify-center"
-            initial={{ left: 0 }}
-            animate={{ 
-              left: `${Math.min((flashBlocks.length / 420) * 100, 100)}%`,
-              scale: raceWinner === 'flash' ? [1, 1.5, 1] : 1
-            }}
-            transition={{ 
-              left: { 
-                type: "spring", 
-                stiffness: 100, 
-                damping: 15,
-                mass: 0.8
-              },
-              scale: { 
-                repeat: raceWinner === 'flash' ? Infinity : 0, 
-                duration: 1 
-              }
-            }}
-          >
-            <span className="text-xs font-bold">F</span>
-            {raceWinner === 'flash' && (
+            
+            <div className="relative h-8 bg-slate-700 rounded-lg overflow-hidden">
+              {/* Finish Line */}
+              <div className="absolute right-0 top-0 bottom-0 w-1 bg-white z-10 flex items-center justify-center">
+                <div className="absolute -left-7 text-white font-bold">420</div>
+              </div>
+              
+              {/* Progress Markers */}
+              {[100, 200, 300].map(marker => (
+                <div 
+                  key={`base-${marker}`} 
+                  className="absolute top-0 bottom-0 w-px bg-slate-600 z-0 flex items-center justify-center"
+                  style={{ left: `${(marker / 420) * 100}%` }}
+                >
+                  <div className="absolute -left-4 text-slate-400 text-sm">{marker}</div>
+                </div>
+              ))}
+              
+              {/* Base Progress Bar */}
               <motion.div 
-                className="absolute -top-8 whitespace-nowrap text-green-300 font-bold"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                WINNER!
-              </motion.div>
-            )}
-          </motion.div>
-          
-          {/* Base Racer */}
-          <motion.div 
-            className="absolute top-12 h-6 w-6 rounded-full bg-blue-400 shadow-lg z-20 flex items-center justify-center"
-            initial={{ left: 0 }}
-            animate={{ 
-              left: `${Math.min((baseBlocks.length / 420) * 100, 100)}%`,
-              scale: raceWinner === 'base' ? [1, 1.5, 1] : 1
-            }}
-            transition={{ 
-              left: { 
-                type: "spring", 
-                stiffness: 100, 
-                damping: 15,
-                mass: 0.8
-              },
-              scale: { 
-                repeat: raceWinner === 'base' ? Infinity : 0, 
-                duration: 1 
-              }
-            }}
-          >
-            <span className="text-xs font-bold">B</span>
-            {raceWinner === 'base' && (
+                className="absolute top-0 left-0 bottom-0 bg-blue-500/30 z-0"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min((baseMessagesCount / 420) * 100, 100)}%` }}
+                transition={{ type: "spring", stiffness: 100, damping: 15 }}
+              />
+              
+              {/* Base Message Ticks - Show only the most recent 100 ticks for performance */}
+              <div className="absolute top-0 left-0 bottom-0 w-full">
+                {Array.from({ length: Math.min(baseMessagesCount, 100) }, (_, i) => (
+                  <motion.div
+                    key={`base-tick-${i}`}
+                    className="absolute top-0 bottom-0 w-0.5 bg-blue-400 z-5"
+                    style={{ 
+                      left: `${Math.min(((baseMessagesCount - i) / 420) * 100, 100)}%`,
+                      opacity: 1 - (i / 100) * 0.8 // Fade out older ticks
+                    }}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1 - (i / 100) * 0.8, height: '100%' }}
+                    transition={{ duration: 0.2 }}
+                  />
+                ))}
+              </div>
+              
+              {/* Base Racer */}
               <motion.div 
-                className="absolute -top-8 whitespace-nowrap text-blue-300 font-bold"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-blue-400 shadow-lg z-20 flex items-center justify-center"
+                initial={{ left: 0 }}
+                animate={{ 
+                  left: `${Math.min((baseMessagesCount / 420) * 100, 100)}%`,
+                  scale: raceWinner === 'base' ? [1, 1.5, 1] : 1
+                }}
+                transition={{ 
+                  left: { type: "spring", stiffness: 100, damping: 15, mass: 0.8 },
+                  scale: { repeat: raceWinner === 'base' ? Infinity : 0, duration: 1 }
+                }}
               >
-                WINNER!
+                <span className="text-xs font-bold">B</span>
+                {raceWinner === 'base' && (
+                  <motion.div 
+                    className="absolute -top-8 whitespace-nowrap text-blue-300 font-bold"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    WINNER!
+                  </motion.div>
+                )}
               </motion.div>
-            )}
-          </motion.div>
+            </div>
+          </div>
           
+          {/* Tie notification */}
           {raceWinner === 'tie' && (
             <motion.div 
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white font-bold"
+              className="text-center text-white font-bold py-2"
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              TIE!
+              IT'S A TIE!
             </motion.div>
           )}
-        </div>
-        
-        <div className="flex justify-between text-sm text-white">
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 bg-green-400 rounded-full"></div>
-            <span>Flash: {flashBlocks.length} blocks</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
-            <span>Base: {baseBlocks.length} blocks</span>
-          </div>
         </div>
       </div>
 
