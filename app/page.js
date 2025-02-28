@@ -471,7 +471,15 @@ export default function Home() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.7 }}
                     >
-                        Experience the fastest EVM chain
+                        Experience the <span className="font-bold text-green-400 relative inline-block">
+                            fastest
+                            <motion.span 
+                                className="absolute -bottom-1 left-0 w-full h-[2px] bg-green-400/70"
+                                initial={{ width: 0 }}
+                                animate={{ width: "100%" }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                            />
+                        </span> EVM chain
                     </motion.p>
 
                     <motion.p 
