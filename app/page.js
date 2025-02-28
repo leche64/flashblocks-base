@@ -40,7 +40,7 @@ function SpeedComparison({ baseMessages, flashbotMessages }) {
             <div className="flex items-center justify-center h-full">
               <div className="flex w-full gap-4 items-center">
                 <div className="flex-1 flex flex-col items-center">
-                  <span className="text-xs font-mono text-blue-300 mb-1">Base</span>
+                  <span className="text-xs font-mono text-blue-300 mb-1">Fullblocks</span>
                   <motion.div 
                     className="h-6 bg-blue-500/70 rounded-md flex items-center justify-center"
                     style={{ width: `${baseWidth}%` }}
