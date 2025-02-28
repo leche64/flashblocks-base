@@ -500,7 +500,7 @@ export default function Home() {
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                     <Monitor size={20} weight="bold" className="text-gray-400" />
-                                    <span className="text-sm sm:text-base text-gray-300">Fullblocks (2s)</span>
+                                    <span className="text-sm sm:text-base text-gray-300">Fullblocks (~2s)</span>
                                 </div>
                                 <div className="text-lg sm:text-xl font-mono font-bold text-blue-400">
                                     {baseMessages.toLocaleString()}
