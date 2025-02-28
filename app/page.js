@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Monitor, ArrowsHorizontal } from "@phosphor-icons/react";
+import { Monitor, ArrowsHorizontal, Cube } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 import useWebSocket from "react-use-websocket";
 
@@ -184,6 +184,22 @@ export default function Home() {
     
     // Flashblocks WebSocket
     const flashbotSocket = useWebSocket('wss://sepolia.flashblocks.base.org/ws', {
+        onOpen: () => {
+            console.log("Flashblocks WebSocket connected");
+            // Send a subscription request for new heads
+            flashbotSocket.sendJsonMessage({
+                jsonrpc: "2.0",
+                id: 1,
+                method: "eth_subscribe",
+                params: ["newHeads"]
+            });
+        },
+        onClose: (event) => {
+            console.log("Flashblocks WebSocket disconnected", event);
+        },
+        onError: (error) => {
+            console.error("Flashblocks WebSocket error:", error);
+        },
         onMessage: (event) => {
             // Increment counter for every message to show real-time activity
             setFlashbotMessages(prev => prev + 1);
@@ -373,7 +389,8 @@ export default function Home() {
                                             layout
                                             transition={{ duration: 0.3 }}
                                         >
-                                            <span className="font-mono">#{block.blockNumber.toLocaleString()}</span>
+                                            <Cube size={12} weight="bold" className="mr-1 text-blue-300" />
+                                            <span className="font-mono">{block.blockNumber.toLocaleString()}</span>
                                             <span className="mx-1 text-blue-400">•</span>
                                             <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
                                         </motion.div>
@@ -420,7 +437,8 @@ export default function Home() {
                                             layout
                                             transition={{ duration: 0.3 }}
                                         >
-                                            <span className="font-mono">#{block.blockNumber.toLocaleString()}</span>
+                                            <Cube size={12} weight="bold" className="mr-1 text-green-300" />
+                                            <span className="font-mono">{block.blockNumber.toLocaleString()}</span>
                                             <span className="mx-1 text-green-400">•</span>
                                             <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
                                         </motion.div>
@@ -431,6 +449,11 @@ export default function Home() {
                     </div>
                 </motion.div>
             </motion.div>
+            <div className="mt-8 text-sm text-gray-400">
+                <p>Comparison ratio: {flashbotMessages > 0 && baseMessages > 0 ? 
+                    `${(flashbotMessages / baseMessages).toFixed(1)}x faster` : 
+                    "Calculating..."}</p>
+            </div>
         </div>
     )
 }
