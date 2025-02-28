@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Monitor, ArrowsHorizontal, Cube } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 import useWebSocket from "react-use-websocket";
+import Image from "next/image";
 
 // Add this style block outside the component
 const scrollbarHideStyle = {
@@ -353,22 +354,36 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
             >
-                <motion.h1 
-                    className="text-4xl sm:text-5xl md:text-6xl font-bold"
+                <motion.div 
+                    className="flex items-center justify-center gap-3 md:gap-5 tracking-widest"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2, duration: 0.7 }}
                 >
-                    Base X Flashbots
-                </motion.h1>
+                    <Image 
+                        src="/base-logo.svg" 
+                        alt="Base Logo" 
+                        width={46} 
+                        height={46} 
+                        className="w-16 h-16 md:w-24 md:h-24"
+                    />
+                    <h1 className="text-4xl md:text-6xl font-bold">x</h1>
+                    <Image 
+                        src="/flashbots-logo.svg" 
+                        alt="Flashbots Logo" 
+                        width={66} 
+                        height={65} 
+                        className="w-16 h-16 md:w-24 md:h-24"
+                    />
+                </motion.div>
                 
                 <motion.p 
-                    className="text-lg sm:text-xl md:text-2xl mt-2 sm:mt-4"
+                    className="text-lg sm:text-xl md:text-2xl mt-2 sm:mt-4 tracking-wider"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 0.7 }}
                 >
-                    The fastest EVM chain to date.
+                    Experience the fastest EVM chain
                 </motion.p>
                 
                 <motion.p 
@@ -388,7 +403,7 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.1, duration: 0.7 }}
                 >
-                    <h2 className="text-xl sm:text-2xl font-bold mb-6">Real-time Performance Comparison</h2>
+                    <h2 className="text-lg sm:text-xl font-bold mb-6">Real-time Performance Comparison</h2>
                     
                     {/* Base Sepolia Counter */}
                     <div className="mb-8">

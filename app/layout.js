@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
+import { NavBar } from "@/components/NavBar";
 const DepatureMono = localFont({
   src: "./fonts/DepartureMono-Regular.woff",
   variable: "--font-depature-mono",
@@ -18,7 +19,8 @@ export default function RootLayout({ children }) {
       <body
         className={`${DepatureMono.className} antialiased`}
       >
-        {children}
+          <NavBar />
+          {children}
       </body>
     </html>
   );
