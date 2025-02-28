@@ -654,11 +654,6 @@ export default function Home() {
                                                             <span className="mx-1 text-green-400">•</span>
                                                             <span className="font-mono">{new Date(parentBlock.timestamp * 1000).toLocaleTimeString()}</span>
                                                         </div>
-                                                        {childBlocks.length > 0 && (
-                                                            <span className="text-[10px] px-1.5 py-0.5 bg-green-800/50 rounded-sm text-green-300 ml-2">
-                                                                {childBlocks.length} tx{childBlocks.length !== 1 ? 's' : ''}
-                                                            </span>
-                                                        )}
                                                     </motion.div>
                                                     
                                                     {/* Child blocks with indentation */}
