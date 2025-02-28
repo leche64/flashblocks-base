@@ -526,6 +526,75 @@ export default function Home() {
                         <span className="text-base sm:text-lg md:text-xl">Calculating...</span>
                     </p>
                 )}
+                
+                <motion.div 
+                    className="mt-6 max-w-lg mx-auto text-left"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.6, duration: 0.7 }}
+                >
+                    {/* Accordion components */}
+                    <div className="border border-gray-800 rounded-lg overflow-hidden mb-3">
+                        <details className="group">
+                            <summary className="flex justify-between items-center p-4 bg-gray-900/70 cursor-pointer">
+                                <span className="font-semibold text-green-400 text-sm sm:text-base">What are Flashblocks?</span>
+                                <span className="transition-transform duration-300 group-open:rotate-180">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256">
+                                        <path fill="currentColor" d="m213.7 101.7l-80 80a8.2 8.2 0 0 1-11.4 0l-80-80a8.1 8.1 0 0 1 11.4-11.4l74.3 74.4l74.3-74.4a8.1 8.1 0 0 1 11.4 11.4Z" />
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div className="p-4 bg-gray-900/40 text-xs sm:text-sm text-gray-300 leading-relaxed">
+                                <p>
+                                    Flashblocks are sub-blocks issued by the block builder and streamed to nodes every 200ms, allowing for early confirmation times with native revert protection.
+                                </p>
+                                <p className="mt-2 text-gray-400 text-xs">
+                                    Built by Flashbots, you can learn more about it in their <a href="https://github.com/flashbots/rollup-boost?tab=readme-ov-file#core-system-workflow" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">documentation</a>.
+                                </p>
+                            </div>
+                        </details>
+                    </div>
+                    
+                    <div className="border border-gray-800 rounded-lg overflow-hidden">
+                        <details className="group">
+                            <summary className="flex justify-between items-center p-4 bg-gray-900/70 cursor-pointer">
+                                <span className="font-semibold text-green-400 text-sm sm:text-base">How to build with Flashblocks?</span>
+                                <span className="transition-transform duration-300 group-open:rotate-180">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256">
+                                        <path fill="currentColor" d="m213.7 101.7l-80 80a8.2 8.2 0 0 1-11.4 0l-80-80a8.1 8.1 0 0 1 11.4-11.4l74.3 74.4l74.3-74.4a8.1 8.1 0 0 1 11.4 11.4Z" />
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div className="p-4 bg-gray-900/40 text-xs sm:text-sm text-gray-300 leading-relaxed">
+                                <p>
+                                    Builders can start integrating Flashblocks on Base Sepolia testnet — resources:
+                                </p>
+                                
+                                <ul className="mt-2 space-y-3 list-none pl-1">
+                                    <li>
+                                        <span className="font-medium text-gray-200">Base Sepolia Fullblocks (2s):</span>
+                                        <ul className="mt-1 space-y-1 list-disc list-inside pl-2">
+                                            <li>HTTP RPC: <a href="https://sepolia.base.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 break-all">https://sepolia.base.org</a></li>
+                                            <li>WebSocket: <span className="text-blue-400 font-mono text-xs break-all">wss://base-sepolia-rpc.publicnode.com</span></li>
+                                        </ul>
+                                    </li>
+                                    
+                                    <li>
+                                        <span className="font-medium text-gray-200">Base Sepolia Flashblocks (~200ms):</span>
+                                        <ul className="mt-1 space-y-1 list-disc list-inside pl-2">
+                                            <li>HTTP RPC: <a href="https://sepolia-preconf.base.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 break-all">https://sepolia-preconf.base.org</a></li>
+                                            <li>WebSocket: <span className="text-blue-400 font-mono text-xs break-all">wss://sepolia.flashblocks.base.org/ws</span></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                
+                                <p className="mt-3 text-gray-400">
+                                    <a href="https://flashblocks.base.org/docs" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">documentation</a>
+                                </p>
+                            </div>
+                        </details>
+                    </div>
+                </motion.div>
             </motion.div>
         </div>
     )
