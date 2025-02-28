@@ -461,7 +461,7 @@ export default function Home() {
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                     <Monitor size={20} weight="bold" className="text-gray-400" />
-                                    <span className="text-sm sm:text-base text-gray-300">Flashblocks (200ms)</span>
+                                    <span className="text-sm sm:text-base text-gray-300">Flashblocks (~200ms)</span>
                                 </div>
                                 <div className="text-lg sm:text-xl font-mono font-bold text-green-400">
                                     {flashbotMessages.toLocaleString()}
@@ -501,11 +501,16 @@ export default function Home() {
                     </div>
                 </motion.div>
             </motion.div>
-            <div className="mt-8 text-sm text-gray-400">
+            <motion.div 
+                className="mt-8 text-sm text-gray-400"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.7 }}
+            >
                 <p>Comparison ratio: {flashbotMessages > 0 && baseMessages > 0 ? 
                     `${(flashbotMessages / baseMessages).toFixed(1)}x faster` : 
                     "Calculating..."}</p>
-            </div>
+            </motion.div>
         </div>
     )
 }
