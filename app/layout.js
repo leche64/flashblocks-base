@@ -9,8 +9,8 @@ const DepatureMono = localFont({
 });
 
 export const metadata = {
-  title: "Base Flashblocks",
-  description: "The Fastest EVM",
+  title: "Flashblocks",
+  description: "The Fastest EVM Chain",
 };
 
 export default function RootLayout({ children }) {
