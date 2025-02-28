@@ -347,7 +347,7 @@ export default function Home() {
     }
     
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen text-center px-4 sm:px-6 py-8 sm:py-12 bg-black text-white">
+        <div className="flex flex-col items-center justify-center min-h-screen text-center px-4 sm:px-6 py-8 sm:py-12 pt-20 sm:pt-24 bg-black text-white">
             <motion.div 
                 className="flex flex-col gap-y-8 sm:gap-y-10 w-full max-w-xs sm:max-w-md md:max-w-2xl mx-auto"
                 initial={{ opacity: 0 }}
@@ -502,7 +502,7 @@ export default function Home() {
                 </motion.div>
             </motion.div>
             <motion.div 
-                className="mt-8 text-sm text-gray-400"
+                className="mt-8 text-sm sm:text-base md:text-lg text-gray-400"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.4, duration: 0.7 }}
@@ -515,13 +515,16 @@ export default function Home() {
                             color: `rgb(${Math.min(255, 74 + (flashbotMessages / baseMessages) * 20)}, ${Math.min(255, 222 + (flashbotMessages / baseMessages) * 5)}, ${Math.min(255, 74 + (flashbotMessages / baseMessages) * 5)})`
                         }}
                         transition={{ duration: 0.3 }}
-                        className="font-semibold"
+                        className="font-semibold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
                     >
-                        <span className="text-gray-400">Comparison ratio: </span>
-                        <span>{(flashbotMessages / baseMessages).toFixed(1)}x faster</span>
+                        <span className="text-gray-400">Comparison ratio:</span>
+                        <span className="text-base sm:text-lg md:text-xl">{(flashbotMessages / baseMessages).toFixed(1)}x faster</span>
                     </motion.p>
                 ) : (
-                    <p>Comparison ratio: Calculating...</p>
+                    <p className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+                        <span>Comparison ratio:</span>
+                        <span className="text-base sm:text-lg md:text-xl">Calculating...</span>
+                    </p>
                 )}
             </motion.div>
         </div>
