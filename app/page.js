@@ -686,7 +686,7 @@ export default function Home() {
                     </div>
                 </motion.div>
                 
-                {/* Add a footer with links */}
+                {/* 
                 <motion.div
                     className="mt-10 pt-6 border-t border-gray-800 text-xs text-gray-500"
                     initial={{ opacity: 0 }}
@@ -702,7 +702,7 @@ export default function Home() {
                     <p className="mt-4">
                         © {new Date().getFullYear()} Base x Flashbots
                     </p>
-                </motion.div>
+                </motion.div> */}
             </motion.div>
         </div>
     )
