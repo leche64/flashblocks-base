@@ -12,6 +12,93 @@ const scrollbarHideStyle = {
   msOverflowStyle: 'none',  /* IE and Edge */
 };
 
+// Update the SpeedComparison component to make the bar chart more responsive
+function SpeedComparison({ baseMessages, flashbotMessages }) {
+  const ratio = flashbotMessages > 0 && baseMessages > 0 
+    ? (flashbotMessages / baseMessages).toFixed(1) 
+    : null;
+  
+  const intensity = ratio ? Math.min(100, (ratio - 1) * 20) : 0;
+  
+  // Calculate the bar widths based on the actual ratio
+  // We'll use a fixed width for the base bar and scale the flashblocks bar
+  const baseWidth = 20; // Fixed percentage for base
+  const flashWidth = ratio ? Math.min(80, baseWidth * ratio) : 0; // Scale based on ratio, max 80%
+  
+  return (
+    <motion.div 
+      className="mt-4 p-4 rounded-lg bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-800"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+    >
+      <h3 className="text-sm sm:text-base font-semibold text-gray-300 mb-2">Speed Comparison</h3>
+      
+      {ratio ? (
+        <div className="flex flex-col items-center">
+          <div className="relative w-full h-16 mb-3">
+            <div className="flex items-center justify-center h-full">
+              <div className="flex w-full gap-4 items-center">
+                <div className="flex-1 flex flex-col items-center">
+                  <span className="text-xs font-mono text-blue-300 mb-1">Base</span>
+                  <motion.div 
+                    className="h-6 bg-blue-500/70 rounded-md flex items-center justify-center"
+                    style={{ width: `${baseWidth}%` }}
+                    animate={{ width: `${baseWidth}%` }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <span className="text-xs font-mono text-white px-2">1x</span>
+                  </motion.div>
+                </div>
+                
+                <div className="flex-1 flex flex-col items-center">
+                  <span className="text-xs font-mono text-green-300 mb-1">Flashblocks</span>
+                  <motion.div 
+                    className="h-6 bg-green-500/70 rounded-md flex items-center justify-center"
+                    style={{ width: `${baseWidth}%` }}
+                    animate={{ width: `${flashWidth}%` }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <span className="text-xs font-mono text-white px-2">{ratio}x</span>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <motion.p
+            initial={{ scale: 1 }}
+            animate={{ 
+              scale: [1, 1.05, 1],
+              color: `rgb(${Math.min(255, 74 + intensity)}, ${Math.min(255, 222 + intensity/5)}, ${Math.min(255, 74 + intensity/5)})`
+            }}
+            transition={{ 
+              scale: { repeat: Infinity, repeatType: "reverse", duration: 2 },
+              color: { duration: 0.5 }
+            }}
+            className="font-semibold text-base sm:text-lg md:text-xl"
+          >
+            {ratio}x faster
+          </motion.p>
+          
+          <p className="mt-2 text-xs text-gray-400">
+            Flashblocks (~200ms) vs Base Fullblocks (~2s)
+          </p>
+        </div>
+      ) : (
+        <div className="flex justify-center items-center h-16">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+            className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full"
+          />
+          <span className="ml-3 text-gray-400">Calculating...</span>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
 export default function Home() {
     const [baseMessages, setBaseMessages] = useState(0);
     const [flashbotMessages, setFlashbotMessages] = useState(0);
@@ -451,10 +538,8 @@ export default function Home() {
                             </div>
                         </div>
                         
-                        {/* Comparison Arrow */}
-                        <div className="flex justify-center">
-                            <ArrowsHorizontal size={24} weight="bold" className="text-gray-500" />
-                        </div>
+                        {/* Add the new speed comparison component */}
+                        <SpeedComparison baseMessages={baseMessages} flashbotMessages={flashbotMessages} />
                         
                         {/* Flashblocks Counter */}
                         <div>
@@ -507,26 +592,6 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.4, duration: 0.7 }}
             >
-                {flashbotMessages > 0 && baseMessages > 0 ? (
-                    <motion.p
-                        initial={{ scale: 1 }}
-                        animate={{ 
-                            scale: Math.min(1.5, 1 + ((flashbotMessages / baseMessages) * 0.05)),
-                            color: `rgb(${Math.min(255, 74 + (flashbotMessages / baseMessages) * 20)}, ${Math.min(255, 222 + (flashbotMessages / baseMessages) * 5)}, ${Math.min(255, 74 + (flashbotMessages / baseMessages) * 5)})`
-                        }}
-                        transition={{ duration: 0.3 }}
-                        className="font-semibold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
-                    >
-                        <span className="text-gray-400">Comparison ratio:</span>
-                        <span className="text-base sm:text-lg md:text-xl">{(flashbotMessages / baseMessages).toFixed(1)}x faster</span>
-                    </motion.p>
-                ) : (
-                    <p className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
-                        <span>Comparison ratio:</span>
-                        <span className="text-base sm:text-lg md:text-xl">Calculating...</span>
-                    </p>
-                )}
-                
                 <motion.div 
                     className="mt-6 max-w-lg mx-auto text-left"
                     initial={{ opacity: 0, y: 20 }}
@@ -594,6 +659,49 @@ export default function Home() {
                             </div>
                         </details>
                     </div>
+                    
+                    {/* Add a new accordion for "About Flashbots" */}
+                    <div className="border border-gray-800 rounded-lg overflow-hidden mt-3">
+                        <details className="group">
+                            <summary className="flex justify-between items-center p-4 bg-gray-900/70 cursor-pointer">
+                                <span className="font-semibold text-green-400 text-sm sm:text-base">About Flashbots</span>
+                                <span className="transition-transform duration-300 group-open:rotate-180">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256">
+                                        <path fill="currentColor" d="m213.7 101.7l-80 80a8.2 8.2 0 0 1-11.4 0l-80-80a8.1 8.1 0 0 1 11.4-11.4l74.3 74.4l74.3-74.4a8.1 8.1 0 0 1 11.4 11.4Z" />
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div className="p-4 bg-gray-900/40 text-xs sm:text-sm text-gray-300 leading-relaxed">
+                                <p>
+                                    Flashbots is a research and development organization formed to mitigate the negative externalities posed by Maximal Extractable Value (MEV) to stateful blockchains, starting with Ethereum.
+                                </p>
+                                <p className="mt-2">
+                                    Their mission is to enable a permissionless, transparent, and sustainable ecosystem for MEV through illuminating MEV activity, democratizing access to MEV revenue, and enabling sustainable distribution of MEV revenue.
+                                </p>
+                                <p className="mt-2 text-gray-400 text-xs">
+                                    Learn more at <a href="https://www.flashbots.net/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">flashbots.net</a>
+                                </p>
+                            </div>
+                        </details>
+                    </div>
+                </motion.div>
+                
+                {/* Add a footer with links */}
+                <motion.div
+                    className="mt-10 pt-6 border-t border-gray-800 text-xs text-gray-500"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 2, duration: 0.7 }}
+                >
+                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+                        <a href="https://www.flashbots.net/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Flashbots</a>
+                        <a href="https://docs.flashbots.net/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Documentation</a>
+                        <a href="https://github.com/flashbots" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">GitHub</a>
+                        <a href="https://discord.gg/flashbots" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Discord</a>
+                    </div>
+                    <p className="mt-4">
+                        © {new Date().getFullYear()} Base x Flashbots
+                    </p>
                 </motion.div>
             </motion.div>
         </div>
