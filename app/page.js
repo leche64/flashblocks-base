@@ -5,27 +5,275 @@ import { Monitor, ArrowsHorizontal } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 import useWebSocket from "react-use-websocket";
 
+// Add this style block outside the component
+const scrollbarHideStyle = {
+  scrollbarWidth: 'none',  /* Firefox */
+  msOverflowStyle: 'none',  /* IE and Edge */
+};
+
 export default function Home() {
     const [baseMessages, setBaseMessages] = useState(0);
     const [flashbotMessages, setFlashbotMessages] = useState(0);
+    const [baseBlockInfo, setBaseBlockInfo] = useState(null);
+    const [flashbotBlockInfo, setFlashbotBlockInfo] = useState(null);
+    const [baseBlockHistory, setBaseBlockHistory] = useState([]);
+    const [flashbotBlockHistory, setFlashbotBlockHistory] = useState([]);
+    const MAX_HISTORY = 5;
+    
+    // Move the useEffect hook inside the component
+    useEffect(() => {
+        const style = document.createElement('style');
+        style.textContent = `
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+        `;
+        document.head.appendChild(style);
+        return () => {
+            document.head.removeChild(style);
+        };
+    }, []);
     
     const maxCount = useMemo(() => Math.max(100, Math.max(baseMessages, flashbotMessages) * 1.2), [baseMessages, flashbotMessages]);
     
     // Base Sepolia WebSocket
     const baseSocket = useWebSocket('wss://base-sepolia-rpc.publicnode.com', {
-        onMessage: () => {
+        onMessage: (event) => {
+            // Increment counter for every message to show real-time activity
             setBaseMessages(prev => prev + 1);
+            
+            // Handle binary data
+            if (event.data instanceof Blob) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const text = reader.result;
+                        processBaseMessage(text);
+                    } catch (error) {
+                        console.error("Error processing base blob data:", error);
+                    }
+                };
+                reader.readAsText(event.data);
+                return;
+            }
+            
+            // Handle string data
+            if (typeof event.data === 'string') {
+                processBaseMessage(event.data);
+            } else {
+                console.log("Base message is not a string or blob:", typeof event.data);
+            }
         },
         shouldReconnect: () => true,
     });
     
+    // Process base message helper function
+    function processBaseMessage(data) {
+        if (!data || data.length === 0) {
+            console.log("Empty base message received");
+            return;
+        }
+        
+        let blockUpdated = false;
+        
+        try {
+            // Try to parse as JSON
+            let jsonData;
+            try {
+                jsonData = JSON.parse(data);
+            } catch (jsonError) {
+                console.log("Base message is not valid JSON, trying to extract block info directly");
+                
+                // Try to extract block info using regex
+                const blockNumberMatch = data.match(/"block_number":\s*"(0x[0-9a-f]+)"/i);
+                const timestampMatch = data.match(/"timestamp":\s*"(0x[0-9a-f]+)"/i);
+                
+                if (blockNumberMatch && timestampMatch) {
+                    const newBlock = {
+                        blockNumber: parseInt(blockNumberMatch[1], 16),
+                        timestamp: parseInt(timestampMatch[1], 16),
+                        id: Date.now()
+                    };
+                    setBaseBlockInfo(newBlock);
+                    setBaseBlockHistory(prev => {
+                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
+                        return updated;
+                    });
+                    blockUpdated = true;
+                }
+                return;
+            }
+            
+            // Successfully parsed JSON, now extract block info
+            if (jsonData.base) {
+                const newBlock = {
+                    blockNumber: parseInt(jsonData.base.block_number, 16),
+                    timestamp: parseInt(jsonData.base.timestamp, 16),
+                    id: Date.now()
+                };
+                setBaseBlockInfo(newBlock);
+                setBaseBlockHistory(prev => {
+                    const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
+                    return updated;
+                });
+                blockUpdated = true;
+            } else if (jsonData.params && jsonData.params.result) {
+                const result = jsonData.params.result;
+                if (result.number || result.block_number) {
+                    const newBlock = {
+                        blockNumber: parseInt(result.number || result.block_number, 16),
+                        timestamp: parseInt(result.timestamp, 16),
+                        id: Date.now()
+                    };
+                    setBaseBlockInfo(newBlock);
+                    setBaseBlockHistory(prev => {
+                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
+                        return updated;
+                    });
+                    blockUpdated = true;
+                }
+            } else if (jsonData.result) {
+                if (jsonData.result.number || jsonData.result.block_number) {
+                    const newBlock = {
+                        blockNumber: parseInt(jsonData.result.number || jsonData.result.block_number, 16),
+                        timestamp: parseInt(jsonData.result.timestamp, 16),
+                        id: Date.now()
+                    };
+                    setBaseBlockInfo(newBlock);
+                    setBaseBlockHistory(prev => {
+                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
+                        return updated;
+                    });
+                    blockUpdated = true;
+                }
+            }
+            
+            // Only increment the counter if we successfully updated a block
+            if (blockUpdated) {
+                setBaseMessages(prev => prev + 1);
+            }
+        } catch (error) {
+            console.error("Error processing base message:", error);
+            console.log("Raw base message preview:", 
+                typeof data === 'string' 
+                    ? data.substring(0, 200) + "..." 
+                    : "Non-string data");
+        }
+    }
+    
     // Flashblocks WebSocket
     const flashbotSocket = useWebSocket('wss://sepolia.flashblocks.base.org/ws', {
-        onMessage: () => {
+        onMessage: (event) => {
+            // Increment counter for every message to show real-time activity
             setFlashbotMessages(prev => prev + 1);
+            
+            // Handle binary data
+            if (event.data instanceof Blob) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const text = reader.result;
+                        processFlashbotMessage(text);
+                    } catch (error) {
+                        console.error("Error processing flashbot blob data:", error);
+                    }
+                };
+                reader.readAsText(event.data);
+                return;
+            }
+            
+            // Handle string data
+            if (typeof event.data === 'string') {
+                processFlashbotMessage(event.data);
+            } else {
+                console.log("Flashbot message is not a string or blob:", typeof event.data);
+            }
         },
         shouldReconnect: () => true,
     });
+    
+    // Process flashbot message helper function
+    function processFlashbotMessage(data) {
+        if (!data || data.length === 0) {
+            console.log("Empty flashbot message received");
+            return;
+        }
+        
+        try {
+            // Try to parse as JSON
+            let jsonData;
+            try {
+                jsonData = JSON.parse(data);
+            } catch (jsonError) {
+                console.log("Flashbot message is not valid JSON, trying to extract block info directly");
+                
+                // Try to extract block info using regex
+                const blockNumberMatch = data.match(/"block_number":\s*"(0x[0-9a-f]+)"/i);
+                const timestampMatch = data.match(/"timestamp":\s*"(0x[0-9a-f]+)"/i);
+                
+                if (blockNumberMatch && timestampMatch) {
+                    const newBlock = {
+                        blockNumber: parseInt(blockNumberMatch[1], 16),
+                        timestamp: parseInt(timestampMatch[1], 16),
+                        id: Date.now()
+                    };
+                    setFlashbotBlockInfo(newBlock);
+                    setFlashbotBlockHistory(prev => {
+                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
+                        return updated;
+                    });
+                }
+                return;
+            }
+            
+            // Successfully parsed JSON, now extract block info
+            if (jsonData.base) {
+                const newBlock = {
+                    blockNumber: parseInt(jsonData.base.block_number, 16),
+                    timestamp: parseInt(jsonData.base.timestamp, 16),
+                    id: Date.now()
+                };
+                setFlashbotBlockInfo(newBlock);
+                setFlashbotBlockHistory(prev => {
+                    const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
+                    return updated;
+                });
+            } else if (jsonData.params && jsonData.params.result) {
+                const result = jsonData.params.result;
+                if (result.number || result.block_number) {
+                    const newBlock = {
+                        blockNumber: parseInt(result.number || result.block_number, 16),
+                        timestamp: parseInt(result.timestamp, 16),
+                        id: Date.now()
+                    };
+                    setFlashbotBlockInfo(newBlock);
+                    setFlashbotBlockHistory(prev => {
+                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
+                        return updated;
+                    });
+                }
+            } else if (jsonData.result) {
+                if (jsonData.result.number || jsonData.result.block_number) {
+                    const newBlock = {
+                        blockNumber: parseInt(jsonData.result.number || jsonData.result.block_number, 16),
+                        timestamp: parseInt(jsonData.result.timestamp, 16),
+                        id: Date.now()
+                    };
+                    setFlashbotBlockInfo(newBlock);
+                    setFlashbotBlockHistory(prev => {
+                        const updated = [newBlock, ...prev].slice(0, MAX_HISTORY);
+                        return updated;
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Error processing flashbot message:", error);
+            console.log("Raw flashbot message preview:", 
+                typeof data === 'string' 
+                    ? data.substring(0, 200) + "..." 
+                    : "Non-string data");
+        }
+    }
     
     return (
         <div className="flex flex-col items-center justify-center min-h-screen text-center px-4 sm:px-6 py-8 sm:py-12 bg-black text-white">
@@ -91,6 +339,27 @@ export default function Home() {
                                 transition={{ duration: 0.3 }}
                             />
                         </div>
+                        <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
+                            <div className="flex gap-2 flex-nowrap">
+                                <AnimatePresence>
+                                    {baseBlockHistory.map((block, index) => (
+                                        <motion.div 
+                                            className="bg-blue-900/50 text-blue-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
+                                            initial={{ opacity: 0, scale: 0.9, x: -10 }}
+                                            animate={{ opacity: 1, scale: 1, x: 0 }}
+                                            exit={{ opacity: 0, scale: 0.9, x: 10 }}
+                                            key={`base-block-${block.id}`}
+                                            layout
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <span className="font-mono">#{block.blockNumber.toLocaleString()}</span>
+                                            <span className="mx-1 text-blue-400">•</span>
+                                            <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        </div>
                     </div>
                     
                     {/* Comparison Arrow */}
@@ -116,6 +385,27 @@ export default function Home() {
                                 animate={{ width: `${(flashbotMessages / maxCount) * 100}%` }}
                                 transition={{ duration: 0.3 }}
                             />
+                        </div>
+                        <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
+                            <div className="flex gap-2 flex-nowrap">
+                                <AnimatePresence>
+                                    {flashbotBlockHistory.map((block, index) => (
+                                        <motion.div 
+                                            className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
+                                            initial={{ opacity: 0, scale: 0.9, x: -10 }}
+                                            animate={{ opacity: 1, scale: 1, x: 0 }}
+                                            exit={{ opacity: 0, scale: 0.9, x: 10 }}
+                                            key={`flashbot-block-${block.id}`}
+                                            layout
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <span className="font-mono">#{block.blockNumber.toLocaleString()}</span>
+                                            <span className="mx-1 text-green-400">•</span>
+                                            <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
