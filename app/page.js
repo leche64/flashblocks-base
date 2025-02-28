@@ -373,7 +373,7 @@ export default function Home() {
                         alt="Flashbots Logo" 
                         width={66} 
                         height={65} 
-                        className="size-20 md:size-26"
+                        className="size-22 md:size-28"
                     />
                 </motion.div>
                 
