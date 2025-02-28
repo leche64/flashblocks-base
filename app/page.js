@@ -349,7 +349,7 @@ export default function Home() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen text-center px-4 sm:px-6 py-8 sm:py-12 bg-black text-white">
             <motion.div 
-                className="flex flex-col gap-4 sm:gap-6 w-full max-w-xs sm:max-w-md md:max-w-2xl mx-auto"
+                className="flex flex-col gap-y-8 sm:gap-y-10 w-full max-w-xs sm:max-w-md md:max-w-2xl mx-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
@@ -365,7 +365,7 @@ export default function Home() {
                         alt="Base Logo" 
                         width={46} 
                         height={46} 
-                        className="w-16 h-16 md:w-24 md:h-24"
+                        className="size-18 md:size-24"
                     />
                     <h1 className="text-4xl md:text-6xl font-bold">x</h1>
                     <Image 
@@ -373,125 +373,129 @@ export default function Home() {
                         alt="Flashbots Logo" 
                         width={66} 
                         height={65} 
-                        className="w-16 h-16 md:w-24 md:h-24"
+                        className="size-20 md:size-26"
                     />
                 </motion.div>
                 
-                <motion.p 
-                    className="text-lg sm:text-xl md:text-2xl mt-2 sm:mt-4 tracking-wider"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.7 }}
-                >
-                    Experience the fastest EVM chain
-                </motion.p>
-                
-                <motion.p 
-                    className="text-base sm:text-lg md:text-xl mt-4 sm:mt-6 text-green-400 font-semibold"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8, duration: 0.7 }}
-                >
-                    live on testnet right now
-                    <br />
-                    coming to mainnet in Q2
-                </motion.p>
+                <div className="flex flex-col gap-y-4 sm:gap-y-6">
+                    <motion.p 
+                        className="text-lg sm:text-xl md:text-2xl tracking-wider"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.7 }}
+                    >
+                        Experience the fastest EVM chain
+                    </motion.p>
+                    
+                    <motion.p 
+                        className="text-base sm:text-lg md:text-xl text-green-400 font-semibold"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8, duration: 0.7 }}
+                    >
+                        live on testnet right now
+                        <br />
+                        coming to mainnet in Q2
+                    </motion.p>
+                </div>
                 
                 <motion.div
-                    className="mt-12 w-full"
+                    className="w-full"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.1, duration: 0.7 }}
                 >
                     <h2 className="text-lg sm:text-xl font-bold mb-6">Real-time Performance Comparison</h2>
                     
-                    {/* Base Sepolia Counter */}
-                    <div className="mb-8">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                                <Monitor size={20} weight="bold" className="text-gray-400" />
-                                <span className="text-sm sm:text-base text-gray-300">Fullblocks (2s)</span>
+                    <div className="flex flex-col gap-y-8">
+                        {/* Base Sepolia Counter */}
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                    <Monitor size={20} weight="bold" className="text-gray-400" />
+                                    <span className="text-sm sm:text-base text-gray-300">Fullblocks (2s)</span>
+                                </div>
+                                <div className="text-lg sm:text-xl font-mono font-bold text-blue-400">
+                                    {baseMessages.toLocaleString()}
+                                </div>
                             </div>
-                            <div className="text-lg sm:text-xl font-mono font-bold text-blue-400">
-                                {baseMessages.toLocaleString()}
+                            <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
+                                <motion.div 
+                                    className="h-full bg-blue-500 rounded-full"
+                                    initial={{ width: '0%' }}
+                                    animate={{ width: `${(baseMessages / maxCount) * 100}%` }}
+                                    transition={{ duration: 0.3 }}
+                                />
                             </div>
-                        </div>
-                        <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
-                            <motion.div 
-                                className="h-full bg-blue-500 rounded-full"
-                                initial={{ width: '0%' }}
-                                animate={{ width: `${(baseMessages / maxCount) * 100}%` }}
-                                transition={{ duration: 0.3 }}
-                            />
-                        </div>
-                        <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
-                            <div className="flex gap-2 flex-nowrap">
-                                <AnimatePresence>
-                                    {baseBlockHistory.map((block) => (
-                                        <motion.div 
-                                            className="bg-blue-900/50 text-blue-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
-                                            initial={{ opacity: 0, scale: 0.9, x: -10 }}
-                                            animate={{ opacity: 1, scale: 1, x: 0 }}
-                                            exit={{ opacity: 0, scale: 0.9, x: 10 }}
-                                            key={block.id}
-                                            layout
-                                            transition={{ duration: 0.3 }}
-                                        >
-                                            <Cube size={12} weight="bold" className="mr-1 text-blue-300" />
-                                            <span className="font-mono">{block.blockNumber.toLocaleString()}</span>
-                                            <span className="mx-1 text-blue-400">•</span>
-                                            <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* Comparison Arrow */}
-                    <div className="flex justify-center my-4">
-                        <ArrowsHorizontal size={24} weight="bold" className="text-gray-500" />
-                    </div>
-                    
-                    {/* Flashblocks Counter */}
-                    <div className="mb-4">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                                <Monitor size={20} weight="bold" className="text-gray-400" />
-                                <span className="text-sm sm:text-base text-gray-300">Flashblocks (200ms)</span>
-                            </div>
-                            <div className="text-lg sm:text-xl font-mono font-bold text-green-400">
-                                {flashbotMessages.toLocaleString()}
+                            <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
+                                <div className="flex gap-2 flex-nowrap">
+                                    <AnimatePresence>
+                                        {baseBlockHistory.map((block) => (
+                                            <motion.div 
+                                                className="bg-blue-900/50 text-blue-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
+                                                initial={{ opacity: 0, scale: 0.9, x: -10 }}
+                                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                exit={{ opacity: 0, scale: 0.9, x: 10 }}
+                                                key={block.id}
+                                                layout
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                <Cube size={12} weight="bold" className="mr-1 text-blue-300" />
+                                                <span className="font-mono">{block.blockNumber.toLocaleString()}</span>
+                                                <span className="mx-1 text-blue-400">•</span>
+                                                <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
                             </div>
                         </div>
-                        <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
-                            <motion.div 
-                                className="h-full bg-green-500 rounded-full"
-                                initial={{ width: '0%' }}
-                                animate={{ width: `${(flashbotMessages / maxCount) * 100}%` }}
-                                transition={{ duration: 0.3 }}
-                            />
+                        
+                        {/* Comparison Arrow */}
+                        <div className="flex justify-center">
+                            <ArrowsHorizontal size={24} weight="bold" className="text-gray-500" />
                         </div>
-                        <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
-                            <div className="flex gap-2 flex-nowrap">
-                                <AnimatePresence>
-                                    {flashbotBlockHistory.map((block) => (
-                                        <motion.div 
-                                            className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
-                                            initial={{ opacity: 0, scale: 0.9, x: -10 }}
-                                            animate={{ opacity: 1, scale: 1, x: 0 }}
-                                            exit={{ opacity: 0, scale: 0.9, x: 10 }}
-                                            key={block.id}
-                                            layout
-                                            transition={{ duration: 0.3 }}
-                                        >
-                                            <Cube size={12} weight="bold" className="mr-1 text-green-300" />
-                                            <span className="font-mono">{block.blockNumber.toLocaleString()}</span>
-                                            <span className="mx-1 text-green-400">•</span>
-                                            <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
+                        
+                        {/* Flashblocks Counter */}
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                    <Monitor size={20} weight="bold" className="text-gray-400" />
+                                    <span className="text-sm sm:text-base text-gray-300">Flashblocks (200ms)</span>
+                                </div>
+                                <div className="text-lg sm:text-xl font-mono font-bold text-green-400">
+                                    {flashbotMessages.toLocaleString()}
+                                </div>
+                            </div>
+                            <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
+                                <motion.div 
+                                    className="h-full bg-green-500 rounded-full"
+                                    initial={{ width: '0%' }}
+                                    animate={{ width: `${(flashbotMessages / maxCount) * 100}%` }}
+                                    transition={{ duration: 0.3 }}
+                                />
+                            </div>
+                            <div className="mt-2 overflow-x-auto pb-1" style={scrollbarHideStyle}>
+                                <div className="flex gap-2 flex-nowrap">
+                                    <AnimatePresence>
+                                        {flashbotBlockHistory.map((block) => (
+                                            <motion.div 
+                                                className="bg-green-900/50 text-green-200 px-2 py-1 rounded-md flex items-center text-xs whitespace-nowrap"
+                                                initial={{ opacity: 0, scale: 0.9, x: -10 }}
+                                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                exit={{ opacity: 0, scale: 0.9, x: 10 }}
+                                                key={block.id}
+                                                layout
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                <Cube size={12} weight="bold" className="mr-1 text-green-300" />
+                                                <span className="font-mono">{block.blockNumber.toLocaleString()}</span>
+                                                <span className="mx-1 text-green-400">•</span>
+                                                <span className="font-mono">{new Date(block.timestamp * 1000).toLocaleTimeString()}</span>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
                             </div>
                         </div>
                     </div>
